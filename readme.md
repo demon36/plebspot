@@ -20,12 +20,11 @@ make
 - place markdown files in `pages` and `posts` directories
 
 #### roadmap
-- [ ] use config file for icon, title, port, etc
+- [x] use config file for icon, title, port, etc
 - [ ] code blocks syntax highlighting (implementation options: enscript, gnu src-highlitem, highlightjs)
 - [ ] optional custom post/page title instead of filename
 - [ ] basic html templates
-- [ ] post categories
-- [ ] pages hierarchy
+- [x] post categories/pages hierarchy
 - [ ] compressed html cache
 - [ ] rss feeds
 - [ ] comments

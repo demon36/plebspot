@@ -33,7 +33,7 @@ CFLAGS := -m$(ARCH) -Wall -Wconversion -Werror -g -std=c++17 -I$(INC_DIR)
 CFLAGS_DEBUG := -DDEBUG
 CFLAGS_RELEASE := -O3 -w -DNDEBUG
 INC := $(DEP_CFLAGS)
-LIBS := -lpthread -L./thirdparty/hoedown -l:libhoedown.a#ex: -L./ext/thirdparty/lib -lthirdpary
+LIBS := -lpthread -L./thirdparty/hoedown -l:libhoedown.a#for windows add -lws2_32
 
 LDFLAGS := -m$(ARCH)
 SO_LDFLAGS := -shared -Wl,-zdefs,-soname,$(SO_FILE).$(MAJOR_VERSION),-rpath,'$$ORIGIN'
@@ -54,11 +54,11 @@ endif
 
 all: exec
 
-shared: depend $(LIB_DIR)/$(SO_FILE) $(LIB_DIR)/$(SO_DBG_FILE)
+shared: depend $(LIB_DIR)/$(SO_FILE)
 
 static: $(LIB_DIR)/$(A_FILE)
 
-exec: $(BIN_DIR)/$(EXEC_FILE) $(BIN_DIR)/$(EXEC_DBG_FILE)
+exec: $(BIN_DIR)/$(EXEC_FILE)
 
 test: shared $(TEST_BIN_DIR)/$(TEST_FILE)
 

@@ -1,8 +1,9 @@
 #include "md.h"
-
 //hoedown
 #include "document.h"
 #include "html.h"
+
+#include <cstring>
 
 enum renderer_type {
 	RENDERER_HTML,

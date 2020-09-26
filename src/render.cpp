@@ -1,4 +1,4 @@
-#include "html.h"
+#include "render.h"
 
 #include "fs.h"
 
@@ -10,10 +10,11 @@
 
 using namespace std;
 
-namespace html{
+namespace render{
 
-std::string render_home_page(){
+std::string render_home_page(const string& blog_title){
 	stringstream ss;
+	ss << "<h2>" << blog_title << "</h2>";
 	ss << render_dir_as_md_list(PAGES_DIR) << render_dir_as_md_list(POSTS_DIR);
 	return ss.str();
 }

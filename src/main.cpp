@@ -3,11 +3,10 @@
 #include <fmt/core.h>
 
 #include <string>
-#include <sstream>
 
 #include "fs.h"
-#include "md.h"
-#include "html.h"
+#include "render.h"
+#include "config.h"
 
 using namespace std;
 
@@ -15,11 +14,13 @@ int main(void)
 {
 	using namespace httplib;
 
+	config::load();
+
 	Server svr;
 
 	svr.Get("/", [](const Request& req, Response& res) {
 		try{
-			res.set_content(html::render_home_page(), "text/html");
+			res.set_content(render::render_home_page(config::blog_title), "text/html");
 		}catch(const exception& ex){
 			cout << ex.what() << endl;
 		}
@@ -44,8 +45,8 @@ int main(void)
 	});
 
 	svr.Get("/favicon.ico", [&](const Request& req, Response& res) {
-		if(filesystem::exists("./favicon.ico")){
-			res.set_content(fs::get_file_contents("./favicon.ico"), "image/webp");
+		if(filesystem::exists(config::favicon_path)){
+			res.set_content(fs::get_file_contents(config::favicon_path.c_str()), "image/webp");
 			return res.status = 200;
 		} else {
 			return res.status = 404;
@@ -64,7 +65,6 @@ int main(void)
 	});
 
 	const char* ip = "0.0.0.0";
-	unsigned int port = 1993;
-	fmt::print("starting to listen on {}:{}\n", ip, port);
-	svr.listen(ip, port);
+	fmt::print("starting to listen on {}:{}\n", ip, config::http_port);
+	svr.listen(ip, config::http_port);
 }
