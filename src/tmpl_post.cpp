@@ -8,7 +8,7 @@ const char* tmpl_post = R"(
 	<script>hljs.initHighlightingOnLoad();</script>
 </head>
 <body>
-	{{content}}
+	{{{content}}}
 </body>
 </html>
 )";

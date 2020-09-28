@@ -29,3 +29,4 @@ make
 - [ ] compressed html cache
 - [ ] rss feeds
 - [ ] comments
+- [ ] search

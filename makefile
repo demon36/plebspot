@@ -15,8 +15,8 @@ PROJECT_NAME := $(shell basename $(CURDIR))
 MAJOR_VERSION := 0
 MINOR_VERSION := 1.9
 
-DEP_SRC_DIRS := ./thirdparty/fmt/src ./thirdparty/Jinja2CppLight/src
-DEP_CFLAGS := -I./thirdparty/cpp-httplib -I./thirdparty/fmt/include -I./thirdparty/hoedown/src -I./thirdparty/Jinja2CppLight/src
+DEP_SRC_DIRS := ./thirdparty/fmt/src
+DEP_CFLAGS := -I./thirdparty/cpp-httplib -I./thirdparty/fmt/include -I./thirdparty/hoedown/src -I./thirdparty/Mustache
 
 SRC_FILES := $(shell test -d $(SRC_DIR) && find $(SRC_DIR) $(DEP_SRC_DIRS)  -regex '.*\.\(c\|cc\|cpp\|cxx\)')
 TEST_SRC_FILES := $(shell test -d $(TEST_SRC_DIR) && find $(TEST_SRC_DIR) -regex '.*\.\(c\|cc\|cpp\|cxx\)')
@@ -89,7 +89,10 @@ depend:
 	$(MAKE) -C ./thirdparty/hoedown 
 #for color in $(DEP_PROJ_DIRS); do \
 #	$(MAKE) -C $(color) \
-#done;  
+#done; 
+
+install: all
+	cp $(BIN_DIR)/$(EXEC_FILE) ${HOME}/.local/bin/
 
 $(LIB_DIR)/$(A_FILE): $(OBJ_FILES)
 	@mkdir -p $(@D)
