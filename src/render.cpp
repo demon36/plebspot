@@ -1,22 +1,29 @@
 #include "render.h"
 
 #include "fs.h"
+#include "md.h"
+#include "config.h"
 
 #include <sstream>
 #include <fmt/core.h>
+#include <Jinja2CppLight.h>
 
 #define PAGES_DIR	"pages"
 #define POSTS_DIR	"posts"
 
 using namespace std;
 
+extern const char* tmpl_home;
+extern const char* tmpl_post;
+
 namespace render{
 
-std::string render_home_page(const string& blog_title){
-	stringstream ss;
-	ss << "<h2>" << blog_title << "</h2>";
-	ss << render_dir_as_md_list(PAGES_DIR) << render_dir_as_md_list(POSTS_DIR);
-	return ss.str();
+std::string render_home_page(){
+	Jinja2CppLight::Template home_template(tmpl_home);
+	home_template.setValue("blog_title", config::blog_title);
+	home_template.setValue("pages_list", render_dir_as_md_list(PAGES_DIR));
+	home_template.setValue("posts_list", render_dir_as_md_list(POSTS_DIR));
+	return home_template.render();
 }
 
 string render_dir_as_md_list(const string& dir){
@@ -40,5 +47,12 @@ string render_dir_as_md_list(const string& dir){
 	return ss.str();
 }
 
+string render_post(const string& path){
+	Jinja2CppLight::Template post_template(tmpl_post);
+	post_template.setValue("blog_title", config::blog_title);
+	post_template.setValue("post_title", path);
+	post_template.setValue("content", md::render_md_to_html(path));
+	return post_template.render();
+}
 
 }

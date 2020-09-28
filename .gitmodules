@@ -7,3 +7,6 @@
 [submodule "thirdparty/hoedown"]
 	path = thirdparty/hoedown
 	url = https://github.com/hoedown/hoedown.git
+[submodule "thirdparty/Jinja2CppLight"]
+	path = thirdparty/Jinja2CppLight
+	url = https://github.com/hughperkins/Jinja2CppLight.git

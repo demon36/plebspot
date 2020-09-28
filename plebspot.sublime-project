@@ -18,7 +18,7 @@
 			"-I./thirdparty/cpp-httplib",
 			"-I./thirdparty/fmt/include",
 			"-I./thirdparty/hoedown/src",
-			"-I./thirdparty/hoedown/bin",
+			"-I./thirdparty/Jinja2CppLight/src",
 		],
 		"ecc_lang_flags": {
 			"C": ["-std=c17"],

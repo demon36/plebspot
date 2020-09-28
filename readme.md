@@ -21,10 +21,11 @@ make
 
 #### roadmap
 - [x] use config file for icon, title, port, etc
-- [ ] code blocks syntax highlighting (implementation options: enscript, gnu src-highlitem, highlightjs)
+- [x] fenced code blocks syntax highlighting
 - [ ] optional custom post/page title instead of filename
 - [ ] basic html templates
 - [x] post categories/pages hierarchy
+- [ ] server side syntax highlighting (use enscript or src-highlite)
 - [ ] compressed html cache
 - [ ] rss feeds
 - [ ] comments

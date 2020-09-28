@@ -3,8 +3,10 @@
 #include <fmt/core.h>
 
 #include <string>
+#include <sstream>
 
 #include "fs.h"
+#include "md.h"
 #include "render.h"
 #include "config.h"
 
@@ -20,7 +22,7 @@ int main(void)
 
 	svr.Get("/", [](const Request& req, Response& res) {
 		try{
-			res.set_content(render::render_home_page(config::blog_title), "text/html");
+			res.set_content(render::render_home_page(), "text/html");
 		}catch(const exception& ex){
 			cout << ex.what() << endl;
 		}
@@ -28,12 +30,12 @@ int main(void)
 
 	svr.Get(R"(/pages/(([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+))", [&](const Request& req, Response& res) {
 		auto pagePath = req.matches[1];
-		res.set_content(md::render_md_to_html(string("./pages/") + pagePath.str()), "text/html");
+		res.set_content(render::render_post(string("./pages/") + pagePath.str()), "text/html");
 	});
 
 	svr.Get(R"(/posts/(([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+))", [&](const Request& req, Response& res) {
 		auto postPath = req.matches[1];
-		res.set_content(md::render_md_to_html(string("./posts/") + postPath.str()), "text/html");
+		res.set_content(render::render_post(string("./posts/") + postPath.str()), "text/html");
 	});
 
 	svr.set_error_handler([](const Request& req, Response& res) {
@@ -65,6 +67,6 @@ int main(void)
 	});
 
 	const char* ip = "0.0.0.0";
-	fmt::print("starting to listen on {}:{}\n", ip, config::http_port);
+	fmt::print("plebspot is listening on {}:{}\n", ip, config::http_port);
 	svr.listen(ip, config::http_port);
 }
