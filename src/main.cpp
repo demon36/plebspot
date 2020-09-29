@@ -11,10 +11,35 @@
 #include "config.h"
 
 using namespace std;
+using namespace httplib;
 
-int main(void)
+extern const char* plain_html_tmpl;
+
+void init(){
+	filesystem::create_directory(PAGES_DIR);
+	filesystem::create_directory(POSTS_DIR);
+	filesystem::create_directory(TEMPLATES_DIR);
+	string plain_tmpl_path = string(TEMPLATES_DIR) + "/" + config::html_tmpl;
+	if(!filesystem::exists(plain_tmpl_path)){
+		ofstream plain_tmpl(plain_tmpl_path);
+		plain_tmpl << plain_html_tmpl;
+	}
+	if(!filesystem::exists(CONFIG_FILE)){
+		ofstream config_stream(CONFIG_FILE);
+		config_stream <<
+			"blog_title: " << config::blog_title << "\n"
+			"blog_desc:  " << config::blog_desc << "\n"
+			"http_port:  " << config::http_port << "\n"
+			"html_tmpl:  " << config::html_tmpl << "\n";
+	}
+}
+
+int main(int argc, char const *argv[])
 {
-	using namespace httplib;
+	if(argc > 1 && strcmp(argv[1], "init") == 0){
+		init();
+		return 0;
+	}
 
 	config::load();
 
@@ -44,15 +69,6 @@ int main(void)
 
 	svr.Get("/stop", [&](const Request& req, Response& res) {
 		svr.stop();
-	});
-
-	svr.Get("/favicon.ico", [&](const Request& req, Response& res) {
-		if(filesystem::exists(config::favicon_path)){
-			res.set_content(fs::get_file_contents(config::favicon_path.c_str()), "image/webp");
-			return res.status = 200;
-		} else {
-			return res.status = 404;
-		}
 	});
 
 	svr.Get(R"(/static/([a-zA-Z0-9_\-\.]+))", [&](const Request& req, Response& res) {

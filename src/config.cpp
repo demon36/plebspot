@@ -7,7 +7,8 @@ namespace config{
 
 string blog_title = "my blog";
 string blog_desc = "random stuff";
-string favicon_path = "./static/favicon.ico";
+string favicon_path = "./" STATIC_DIR "/favicon.ico";
+string html_tmpl = "plain.html";
 int http_port = 1993;
 
 string trim(const std::string &s){
@@ -43,6 +44,8 @@ bool load(){
 				http_port = atoi(value.c_str());
 			} else if (key == "blog_desc"){
 				blog_desc = value;
+			} else if (key == "html_tmpl"){
+				html_tmpl = value;
 			}
 		}
 	}

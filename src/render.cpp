@@ -8,14 +8,8 @@
 #include <fmt/core.h>
 #include <mustache.hpp>
 
-#define PAGES_DIR	"pages"
-#define POSTS_DIR	"posts"
-
 using namespace std;
 using namespace kainjow;
-
-extern const char* tmpl_home;
-extern const char* tmpl_post;
 
 namespace render{
 
@@ -47,6 +41,7 @@ void get_md_list_data(const string& dir, mustache::data& uncat_items, mustache::
 
 void fill_generic_date(mustache::data& page_data){
 	page_data.set("blog_title", config::blog_title);
+	page_data.set("blog_desc", config::blog_desc);
 
 	mustache::data pages_list{mustache::data::type::list};
 	mustache::data cat_pages_list{mustache::data::type::list};
@@ -61,9 +56,13 @@ void fill_generic_date(mustache::data& page_data){
 	page_data.set("cat_posts_list", cat_posts_list);
 }
 
+mustache::mustache get_template(){
+	return mustache::mustache(fs::get_file_contents(fmt::format("./{}/{}", TEMPLATES_DIR, config::html_tmpl.c_str()).c_str()));
+}
+
 std::string render_home_page(){
 	stringstream ss;
-	mustache::mustache home_tmpl(fs::get_file_contents("template/burger.html"));
+	mustache::mustache home_tmpl = get_template();
 	mustache::data home_data;
 	fill_generic_date(home_data);
 
@@ -73,8 +72,7 @@ std::string render_home_page(){
 
 string render_post(const string& path){
 	stringstream ss;
-	// mustache::mustache home_tmpl(tmpl_home);
-	mustache::mustache post_tmpl(fs::get_file_contents("template/burger.html"));
+	mustache::mustache post_tmpl = get_template();
 	mustache::data post_data;
 	fill_generic_date(post_data);
 
