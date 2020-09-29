@@ -45,39 +45,39 @@ void get_md_list_data(const string& dir, mustache::data& uncat_items, mustache::
 	}
 }
 
-std::string render_home_page(){
-	stringstream ss;
-	mustache::mustache home_tmpl(tmpl_home);
-	mustache::data home_data;
-	home_data.set("blog_title", config::blog_title);
+void fill_generic_date(mustache::data& page_data){
+	page_data.set("blog_title", config::blog_title);
 
 	mustache::data pages_list{mustache::data::type::list};
 	mustache::data cat_pages_list{mustache::data::type::list};
 	get_md_list_data(PAGES_DIR, pages_list, cat_pages_list);
-	home_data.set("pages_list", pages_list);
-	home_data.set("cat_pages_list", cat_pages_list);
+	page_data.set("pages_list", pages_list);
+	page_data.set("cat_pages_list", cat_pages_list);
 
 	mustache::data posts_list{mustache::data::type::list};
 	mustache::data cat_posts_list{mustache::data::type::list};
 	get_md_list_data(POSTS_DIR, posts_list, cat_posts_list);
-	home_data.set("posts_list", posts_list);
-	home_data.set("cat_posts_list", cat_posts_list);
+	page_data.set("posts_list", posts_list);
+	page_data.set("cat_posts_list", cat_posts_list);
+}
+
+std::string render_home_page(){
+	stringstream ss;
+	mustache::mustache home_tmpl(fs::get_file_contents("template/burger.html"));
+	mustache::data home_data;
+	fill_generic_date(home_data);
 
 	home_tmpl.render(home_data, ss);
 	return ss.str();
 }
 
-
 string render_post(const string& path){
-	// Jinja2CppLight::Template post_template(tmpl_post);
-	// post_template.setValue("blog_title", config::blog_title);
-	// post_template.setValue("post_title", path);
-	// post_template.setValue("content", md::render_md_to_html(path));
-	using namespace kainjow;
 	stringstream ss;
-	mustache::mustache post_tmpl(tmpl_post);
+	// mustache::mustache home_tmpl(tmpl_home);
+	mustache::mustache post_tmpl(fs::get_file_contents("template/burger.html"));
 	mustache::data post_data;
-	post_data.set("blog_title", config::blog_title);
+	fill_generic_date(post_data);
+
 	post_data.set("post_title", path);
 	post_data.set("content", md::render_md_to_html(path));
 	post_tmpl.render(post_data, ss);

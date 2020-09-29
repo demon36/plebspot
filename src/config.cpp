@@ -6,6 +6,7 @@ using namespace std;
 namespace config{
 
 string blog_title = "my blog";
+string blog_desc = "random stuff";
 string favicon_path = "./static/favicon.ico";
 int http_port = 1993;
 
@@ -40,6 +41,8 @@ bool load(){
 				favicon_path = value;
 			} else if (key == "http_port"){
 				http_port = atoi(value.c_str());
+			} else if (key == "blog_desc"){
+				blog_desc = value;
 			}
 		}
 	}

@@ -39,7 +39,7 @@ int main(void)
 	});
 
 	svr.set_error_handler([](const Request& req, Response& res) {
-		fmt::print("error\n");
+		fmt::print("error while serving url {}\n", req.path);
 	});
 
 	svr.Get("/stop", [&](const Request& req, Response& res) {

@@ -7,8 +7,8 @@
 
 namespace config{
 
-
 	extern std::string blog_title;
+	extern std::string blog_desc;
 	extern std::string favicon_path;
 	extern int http_port;
 
