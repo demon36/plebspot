@@ -56,10 +56,6 @@ void serve(){
 		fmt::print("error while serving url {}\n", req.path);
 	});
 
-	svr.Get("/stop", [&](const Request& req, Response& res) {
-		svr.stop();
-	});
-
 	svr.Get(R"(/static/([a-zA-Z0-9_\-\.]+))", [&](const Request& req, Response& res) {
 		string target_path = string("./static/") + req.matches[1].str();
 		fmt::print("requesting static uri {}\n", target_path);
