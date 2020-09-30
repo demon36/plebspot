@@ -13,7 +13,7 @@ git clone --recursive --shallow-submodules git@github.com:demon36/plebspot.git
 ```
 make
 ```
-- psst: build config is not so windows friendly but you can work your way through using mingw + gcc/clang
+- currently mingw is required on windows, but the source code is portable
 
 #### how to use ?
 - initialize plebspot in an empty directory 
@@ -34,6 +34,9 @@ plebspot
 - [x] basic html templates
 - [x] init command 
 - [x] post categories/pages hierarchy
+- [ ] logging
+- [ ] error reporting
+- [ ] optimize
 - [ ] server side syntax highlighting (use enscript or src-highlite)
 - [ ] compressed html cache
 - [ ] rss feeds

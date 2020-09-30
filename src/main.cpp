@@ -34,17 +34,9 @@ void init(){
 	}
 }
 
-int main(int argc, char const *argv[])
-{
-	if(argc > 1 && strcmp(argv[1], "init") == 0){
-		init();
-		return 0;
-	}
-
+void serve(){
 	config::load();
-
 	Server svr;
-
 	svr.Get("/", [](const Request& req, Response& res) {
 		try{
 			res.set_content(render::render_home_page(), "text/html");
@@ -85,4 +77,24 @@ int main(int argc, char const *argv[])
 	const char* ip = "0.0.0.0";
 	fmt::print("plebspot is listening on {}:{}\n", ip, config::http_port);
 	svr.listen(ip, config::http_port);
+}
+
+void help(){
+	cout << "usage:\n"
+	"\tplebspot init\n"
+	"\t\tcreate sample files and folder needed for operation\n"
+	"\tplebspot serve\n"
+	"\t\tserves plebspot http application on port 1993 or port configured in pleb.yml\n";
+}
+
+int main(int argc, char const *argv[])
+{
+	if(argc == 2 && strcmp(argv[1], "init") == 0){
+		init();
+	} else if(argc == 2 && strcmp(argv[1], "serve") == 0){
+		serve();
+	} else {
+		help();
+	}
+
 }

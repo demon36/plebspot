@@ -26,14 +26,22 @@ DEP_FILES := $(patsubst %,$(DEP_DIR)/%.dep,$(SRC_FILES)) $(patsubst $(TEST_SRC_D
 
 SO_FILE := $(PROJECT_NAME).so
 A_FILE := $(PROJECT_NAME).a
-EXEC_FILE := $(PROJECT_NAME)
+ifeq ($(OS),Windows_NT)
+	EXEC_FILE := $(PROJECT_NAME).exe
+else
+	EXEC_FILE := $(PROJECT_NAME)
+endif
+
 TEST_FILE := main_test
 
 CFLAGS := -m$(ARCH) -Wall -Wconversion -Werror -g -std=c++17 -I$(INC_DIR) 
 CFLAGS_DEBUG := -DDEBUG
 CFLAGS_RELEASE := -O3 -w -DNDEBUG
 INC := $(DEP_CFLAGS)
-LIBS := -lpthread -L./thirdparty/hoedown -l:libhoedown.a#for windows add -lws2_32
+LIBS := -lpthread -L./thirdparty/hoedown -l:libhoedown.a#ex: -L./ext/thirdparty/lib -lthirdpary
+ifeq ($(OS),Windows_NT)
+	LIBS += -lws2_32 
+endif
 
 LDFLAGS := -m$(ARCH)
 SO_LDFLAGS := -shared -Wl,-zdefs,-soname,$(SO_FILE).$(MAJOR_VERSION),-rpath,'$$ORIGIN'
