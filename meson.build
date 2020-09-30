@@ -46,6 +46,6 @@ executable('plebspot',
             'src/render.cpp',
             'src/util.cpp'
            ],
-           dependencies : [fmt_dep, mustache_dep, httplib_dep], 
+           dependencies : [fmt_dep, mustache_dep, httplib_dep, dependency('threads')], 
            include_directories : include_directories('./thirdparty/hoedown/src'),
            install : true)
