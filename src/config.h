@@ -16,7 +16,7 @@ namespace config{
 	extern std::string html_tmpl;
 	extern int http_port;
 
-	bool load();
+	void load();
 }
 
 #endif

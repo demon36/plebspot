@@ -76,8 +76,9 @@ string render_post(const string& path){
 	mustache::data post_data;
 	fill_generic_date(post_data);
 
+	string file_contents = fs::get_file_contents(path.c_str());
 	post_data.set("post_title", path);
-	post_data.set("content", md::render_md_to_html(path));
+	post_data.set("content", md::render_md_to_html(file_contents));
 	post_tmpl.render(post_data, ss);
 	return ss.str();
 }

@@ -18,6 +18,7 @@ extern const char* plain_html_tmpl;
 void init(){
 	filesystem::create_directory(PAGES_DIR);
 	filesystem::create_directory(POSTS_DIR);
+	filesystem::create_directory(STATIC_DIR);
 	filesystem::create_directory(TEMPLATES_DIR);
 	string plain_tmpl_path = string(TEMPLATES_DIR) + "/" + config::html_tmpl;
 	if(!filesystem::exists(plain_tmpl_path)){
@@ -38,11 +39,7 @@ void serve(){
 	config::load();
 	Server svr;
 	svr.Get("/", [](const Request& req, Response& res) {
-		try{
-			res.set_content(render::render_home_page(), "text/html");
-		}catch(const exception& ex){
-			cout << ex.what() << endl;
-		}
+		res.set_content(render::render_home_page(), "text/html");
 	});
 
 	svr.Get(R"(/pages/(([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+))", [&](const Request& req, Response& res) {
@@ -96,5 +93,4 @@ int main(int argc, char const *argv[])
 	} else {
 		help();
 	}
-
 }

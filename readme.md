@@ -30,7 +30,7 @@ plebspot
 #### roadmap
 - [x] use config file for icon, title, port, etc
 - [x] fenced code blocks syntax highlighting
-- [ ] optional custom post/page title instead of filename
+- [ ] optional custom post/page metadata (title, author, date, tags)
 - [x] basic html templates
 - [x] init command 
 - [x] post categories/pages hierarchy
@@ -39,6 +39,7 @@ plebspot
 - [ ] optimize
 - [ ] server side syntax highlighting (use enscript or src-highlite)
 - [ ] compressed html cache
+- [ ] github style task list
 - [ ] rss feeds
 - [ ] comments
 - [ ] search
