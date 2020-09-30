@@ -10,13 +10,12 @@
 #define TEMPLATES_DIR	"template"
 
 namespace config{
-	extern std::string blog_title;
-	extern std::string blog_desc;
-	extern std::string favicon_path;
-	extern std::string html_tmpl;
-	extern int http_port;
+extern std::string blog_title;
+extern std::string blog_desc;
+extern std::string html_tmpl;
+extern int http_port;
 
-	void load();
+void load();
 }
 
 #endif

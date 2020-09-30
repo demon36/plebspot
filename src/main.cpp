@@ -78,10 +78,10 @@ void serve(){
 
 void help(){
 	cout << "usage:\n"
-	"\tplebspot init\n"
-	"\t\tcreate sample files and folder needed for operation\n"
-	"\tplebspot serve\n"
-	"\t\tserves plebspot http application on port 1993 or port configured in pleb.yml\n";
+		"\tplebspot init\n"
+		"\t\tcreate sample files and folder needed for operation\n"
+		"\tplebspot serve\n"
+		"\t\tserves plebspot http application on port 1993 or port configured in pleb.yml\n";
 }
 
 int main(int argc, char const *argv[])

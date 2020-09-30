@@ -11,7 +11,6 @@ namespace config{
 
 string blog_title = "my blog";
 string blog_desc = "random stuff";
-string favicon_path = "./" STATIC_DIR "/favicon.ico";
 string html_tmpl = "plain.html";
 int http_port = 1993;
 
@@ -22,8 +21,6 @@ void load(){
 	for( const auto& config_item : config_items) {
 		if (config_item.first == "blog_title"){
 			blog_title = config_item.second;
-		} else if (config_item.first == "favicon_path"){
-			favicon_path = config_item.second;
 		} else if (config_item.first == "http_port"){
 			http_port = atoi(config_item.second.c_str());
 		} else if (config_item.first == "blog_desc"){

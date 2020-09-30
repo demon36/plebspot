@@ -38,7 +38,7 @@ CFLAGS := -m$(ARCH) -Wall -Wconversion -Werror -g -std=c++17 -I$(INC_DIR)
 CFLAGS_DEBUG := -DDEBUG
 CFLAGS_RELEASE := -O3 -w -DNDEBUG
 INC := $(DEP_CFLAGS)
-LIBS := -lpthread -L./thirdparty/hoedown -l:libhoedown.a#ex: -L./ext/thirdparty/lib -lthirdpary
+LIBS := -static-libstdc++ -static-libgcc -lpthread -L./thirdparty/hoedown -l:libhoedown.a#ex: -L./ext/thirdparty/lib -lthirdpary
 ifeq ($(OS),Windows_NT)
 	LIBS += -lws2_32 
 endif

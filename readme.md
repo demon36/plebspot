@@ -20,11 +20,12 @@ make
 ```sh
 plebspot init
 ```
-- edit `pleb.yml`
+- add blog info to `pleb.yml`
 - place markdown files in `pages` and `posts` directories
-- run 
+- place static content in `/static`
+- run
 ```sh
-plebspot
+plebspot serve
 ```
 
 #### roadmap
@@ -36,7 +37,7 @@ plebspot
 - [x] post categories/pages hierarchy
 - [ ] logging
 - [ ] error reporting
-- [ ] optimize
+- [ ] optimization
 - [ ] server side syntax highlighting (use enscript or src-highlite)
 - [ ] compressed html cache
 - [ ] github style task list
