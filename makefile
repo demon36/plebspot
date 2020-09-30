@@ -60,9 +60,9 @@ else
 $(error "allowed BUILD values are debug, release, coverage")
 endif
 
-all: exec
+all: depend exec
 
-shared: depend $(LIB_DIR)/$(SO_FILE)
+shared: $(LIB_DIR)/$(SO_FILE)
 
 static: $(LIB_DIR)/$(A_FILE)
 
