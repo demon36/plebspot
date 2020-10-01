@@ -5,15 +5,16 @@ quick and dirty blogging SofTwArE written on a hurry
 write and manage content in markdown with minimal effort/footprint/cpu-cycles/interaction wizza cumba-yotar
 
 #### how to build ?
-- do a recursive clone
+- do a recursive clone and change dir
 ```
 git clone --recursive --shallow-submodules git@github.com:demon36/plebspot.git
+cd plebspot
 ```
-- cd and make the program
+- for linux:
 ```
 make
 ```
-- currently mingw is required on windows, but the source code is portable
+- for windows and mac meson should work, thanks to @Abdullah-AlAttar
 
 #### how to use ?
 - initialize plebspot in an empty directory 
@@ -22,7 +23,7 @@ plebspot init
 ```
 - add blog info to `pleb.yml`
 - place markdown files in `pages` and `posts` directories
-- place static content in `/static`
+- place static content in `static` folder
 - run
 ```sh
 plebspot serve

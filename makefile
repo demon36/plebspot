@@ -1,4 +1,5 @@
-CC := g++
+export CC := gcc
+export CXX := g++
 ARCH :=$(shell getconf LONG_BIT)
 BUILD := debug
 SRC_DIR := ./src
@@ -38,12 +39,12 @@ CFLAGS := -m$(ARCH) -Wall -Wconversion -Werror -g -std=c++17 -I$(INC_DIR)
 CFLAGS_DEBUG := -DDEBUG
 CFLAGS_RELEASE := -O3 -w -DNDEBUG
 INC := $(DEP_CFLAGS)
-LIBS := -static-libstdc++ -static-libgcc -lpthread -L./thirdparty/hoedown -l:libhoedown.a#ex: -L./ext/thirdparty/lib -lthirdpary
+LIBS := -lpthread -L./thirdparty/hoedown -l:libhoedown.a#ex: -L./ext/thirdparty/lib -lthirdpary
 ifeq ($(OS),Windows_NT)
 	LIBS += -lws2_32 
 endif
 
-LDFLAGS := -m$(ARCH)
+LDFLAGS := -m$(ARCH) -static-libstdc++
 SO_LDFLAGS := -shared -Wl,-zdefs,-soname,$(SO_FILE).$(MAJOR_VERSION),-rpath,'$$ORIGIN'
 TEST_LDFLAGS := -L$(LIB_DIR) -l:$(SO_FILE) -Wl,-rpath,'$$ORIGIN/lib:$$ORIGIN/dep:$$ORIGIN/../../../$(LIB_DIR)'
 
@@ -80,24 +81,20 @@ endif
 
 $(OBJ_DIR)/%.o: %
 	@mkdir -p $(@D) $(DEP_DIR)/$(<D)
-	$(CC) $(CFLAGS) $(INC) -fPIC -c -o $@ $< -MMD -MF $(DEP_DIR)/$<.dep
+	$(CXX) $(CFLAGS) $(INC) -fPIC -c -o $@ $< -MMD -MF $(DEP_DIR)/$<.dep
 
 $(OBJ_DIR)/$(TEST_SRC_DIR)/%.o: $(TEST_SRC_DIR)/%
 	@mkdir -p $(@D) $(DEP_DIR)/$(<D)
-	$(CC) $(CFLAGS) $(INC) -c -o $@ $< -MMD -MF $(DEP_DIR)/$<.dep
+	$(CXX) $(CFLAGS) $(INC) -c -o $@ $< -MMD -MF $(DEP_DIR)/$<.dep
 
 $(LIB_DIR)/$(SO_FILE): $(OBJ_FILES)
 	@mkdir -p $(@D)
-	$(CC) -g -o $@.$(MAJOR_VERSION).$(MINOR_VERSION) $(OBJ_FILES) $(LDFLAGS) $(SO_LDFLAGS) $(LIBS)
+	$(CXX) -g -o $@.$(MAJOR_VERSION).$(MINOR_VERSION) $(OBJ_FILES) $(LDFLAGS) $(SO_LDFLAGS) $(LIBS)
 	ln -sf ./$(SO_FILE).$(MAJOR_VERSION).$(MINOR_VERSION) $(LIB_DIR)/$(SO_FILE).$(MAJOR_VERSION)
 	ln -sf ./$(SO_FILE).$(MAJOR_VERSION).$(MINOR_VERSION) $(LIB_DIR)/$(SO_FILE)
 
-#install --prefix=./vendor
 depend:
-	$(MAKE) -C ./thirdparty/hoedown 
-#for color in $(DEP_PROJ_DIRS); do \
-#	$(MAKE) -C $(color) \
-#done; 
+	$(MAKE) -C ./thirdparty/hoedown
 
 install: all
 	cp $(BIN_DIR)/$(EXEC_FILE) ${HOME}/.local/bin/
@@ -110,7 +107,7 @@ $(LIB_DIR)/$(A_FILE): $(OBJ_FILES)
 
 $(BIN_DIR)/$(EXEC_FILE): $(OBJ_FILES)
 	@mkdir -p $(@D)
-	$(CC) -g $^ -o $@.$(MAJOR_VERSION).$(MINOR_VERSION) $(LDFLAGS) $(LIBS)
+	$(CXX) -g $^ -o $@.$(MAJOR_VERSION).$(MINOR_VERSION) $(LDFLAGS) $(LIBS)
 	ln -sf ./$(EXEC_FILE).$(MAJOR_VERSION).$(MINOR_VERSION) $(BIN_DIR)/$(EXEC_FILE).$(MAJOR_VERSION)
 	ln -sf ./$(EXEC_FILE).$(MAJOR_VERSION).$(MINOR_VERSION) $(BIN_DIR)/$(EXEC_FILE)
 
@@ -121,7 +118,7 @@ $(BIN_DIR)/$(EXEC_FILE): $(OBJ_FILES)
 
 $(TEST_BIN_DIR)/$(TEST_FILE): $(TEST_OBJ_FILES)
 	@mkdir -p $(@D)
-	$(CC) -g $^ -o $@ $(LDFLAGS) $(TEST_LDFLAGS) $(LIBS) 
+	$(CXX) -g $^ -o $@ $(LDFLAGS) $(TEST_LDFLAGS) $(LIBS) 
 
 init:
 	mkdir -p $(SRC_DIR) $(INC_DIR) $(OBJ_DIR) $(BIN_DIR) $(LIB_DIR) $(DEP_DIR) $(TEST_SRC_DIR) $(TEST_BIN_DIR) $(DOCS_DIR)
