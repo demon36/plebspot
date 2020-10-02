@@ -32,7 +32,7 @@ plebspot serve
 #### roadmap
 - [x] use config file for icon, title, port, etc
 - [x] fenced code blocks syntax highlighting
-- [ ] optional custom post/page metadata (title, author, date, tags)
+- [x] optional custom post/page metadata (title, author, date, keywords)
 - [x] basic html templates
 - [x] init command 
 - [x] post categories/pages hierarchy
@@ -46,3 +46,4 @@ plebspot serve
 - [ ] comments
 - [ ] search
 - [ ] meta tags
+- [ ] generate sitemap xml

@@ -6,6 +6,15 @@ using namespace std;
 
 namespace util{
 
+pair<string, string> split(const string& s, const string& token){
+	size_t token_idx = s.find(token);
+	if(token_idx != s.npos){
+		return make_pair(trim(s.substr(0, token_idx)), trim(s.substr(token_idx+1)));
+	} else {
+		return make_pair("", "");
+	}
+}
+
 string trim(const string &s){
 	string::const_iterator it = s.begin();
 	while (it != s.end() && isspace(*it))

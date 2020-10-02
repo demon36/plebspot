@@ -14,10 +14,12 @@ using namespace std;
 using namespace httplib;
 
 extern const char* plain_html_tmpl;
+extern const char* sample_post_md;
 
 void init(){
 	filesystem::create_directory(PAGES_DIR);
 	filesystem::create_directory(POSTS_DIR);
+	filesystem::create_directory(POSTS_DIR "/my_category");
 	filesystem::create_directory(STATIC_DIR);
 	filesystem::create_directory(TEMPLATES_DIR);
 	string plain_tmpl_path = string(TEMPLATES_DIR) + "/" + config::html_tmpl;
@@ -25,11 +27,14 @@ void init(){
 		ofstream plain_tmpl(plain_tmpl_path);
 		plain_tmpl << plain_html_tmpl;
 	}
+	ofstream sample_post_stream(POSTS_DIR "/my_category/sample_post.md");
+	sample_post_stream << sample_post_md;
 	if(!filesystem::exists(CONFIG_FILE)){
 		ofstream config_stream(CONFIG_FILE);
 		config_stream <<
 			"blog_title: " << config::blog_title << "\n"
 			"blog_desc:  " << config::blog_desc << "\n"
+			"blog_keywords:  " << config::blog_keywords << "\n"
 			"http_port:  " << config::http_port << "\n"
 			"html_tmpl:  " << config::html_tmpl << "\n";
 	}

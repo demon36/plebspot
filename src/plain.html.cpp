@@ -3,6 +3,11 @@ const char* plain_html_tmpl = R"(
 <html lang="en-US">
 <head>
 	<meta charset="UTF-8">
+	<meta name="description" content="{{blog_desc}}">
+	<meta name="keywords" content="{{keywords}}">
+	{{#author}}
+	<meta name="author" content="{{author}}">
+	{{/author}}
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>{{blog_title}} - {{blog_desc}}</title>
 	<link rel="alternate" type="application/rss+xml" title="{{blog_title}} - Feed" href="/feed">
@@ -28,7 +33,7 @@ const char* plain_html_tmpl = R"(
 				<ul>
 					{{#pages_list}}
 					<li>
-						<a href="/pages/{{url}}">{{title}}</a>
+						<a href="{{url}}">{{title}}</a>
 					</li>
 					{{/pages_list}}
 
@@ -38,7 +43,7 @@ const char* plain_html_tmpl = R"(
 						<ul>
 							{{#children}}
 							<li>
-								<a href='/pages/{{url}}'>{{title}}</a>
+								<a href='{{url}}'>{{title}}</a>
 							</li>
 							{{/children}}	
 						</ul>
@@ -51,7 +56,7 @@ const char* plain_html_tmpl = R"(
 				<ul>
 					{{#posts_list}}
 					<li>
-						<a href="/posts/{{url}}">{{title}}</a>
+						<a href="{{url}}">{{title}}</a>
 					</li>
 					{{/posts_list}}
 					
@@ -61,7 +66,7 @@ const char* plain_html_tmpl = R"(
 						<ul>
 							{{#children}}
 							<li>
-								<a href='/posts/{{url}}'>{{title}}</a>
+								<a href='{{url}}'>{{title}}</a>
 							</li>
 							{{/children}}	
 						</ul>
@@ -71,7 +76,22 @@ const char* plain_html_tmpl = R"(
 			</div>
 
 			<div class="content col-lg-8">
-			{{{content}}}
+				<dl class="row">
+					{{#date}}
+						<dt class="col-sm-3">date</dt>
+						<dd class="col-sm-9">{{date}}</dd>
+					{{/date}}
+					{{#author}}
+						<dt class="col-sm-3">author</dt>
+						<dd class="col-sm-9">{{author}}</dd>
+					{{/author}}
+					{{#category}}
+						<dt class="col-sm-3">category</dt>
+						<dd class="col-sm-9">{{category}}</dd>
+					{{/category}}
+				</dl>
+
+				{{{content}}}
 			</div>
 		</div>
 	</div>

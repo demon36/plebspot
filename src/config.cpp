@@ -12,6 +12,7 @@ namespace config{
 string blog_title = "my blog";
 string blog_desc = "random stuff";
 string html_tmpl = "plain.html";
+string blog_keywords = "fun, diy";
 int http_port = 1993;
 
 void load(){
@@ -25,6 +26,8 @@ void load(){
 			http_port = atoi(config_item.second.c_str());
 		} else if (config_item.first == "blog_desc"){
 			blog_desc = config_item.second;
+		} else if (config_item.first == "blog_keywords"){
+			blog_keywords = config_item.second;
 		} else if (config_item.first == "html_tmpl"){
 			html_tmpl = config_item.second;
 		}

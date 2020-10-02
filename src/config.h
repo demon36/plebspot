@@ -12,6 +12,7 @@
 namespace config{
 extern std::string blog_title;
 extern std::string blog_desc;
+extern std::string blog_keywords;
 extern std::string html_tmpl;
 extern int http_port;
 
