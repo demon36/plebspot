@@ -54,10 +54,15 @@ const string MD_COMMENT_PREFIX = "[//]: # (";
 const string MD_COMMENT_POSTFIX = ")";
 
 md_doc make_md_doc(filesystem::path p){
+	string parent_cat;
+	if(p.parent_path().stem() != PAGES_DIR && p.parent_path().stem() != POSTS_DIR){
+		parent_cat = p.parent_path().stem().string();
+	}
+
 	md_doc doc = {
 		.title = p.filename().string(),
 		.url = "/" + p.string(),
-		.category = p.parent_path().stem() == PAGES_DIR || p.parent_path().stem() == POSTS_DIR ? "" : p.parent_path().stem(),
+		.category = parent_cat,
 	};
 	std::ifstream file_stream(p.string());
 	for(string line; getline(file_stream, line);){

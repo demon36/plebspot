@@ -34,6 +34,12 @@ fmt_sources = [
   'thirdparty/fmt/src/format.cc',
   'thirdparty/fmt/src/os.cc'
 ]
+
+#for mingw
+if host_machine.system() == 'windows' and meson.get_compiler('cpp').get_id() == 'gcc'
+  add_global_link_arguments(['-lws2_32'], language : 'cpp')
+endif
+
 executable('plebspot',
            sources : [
              hoedown_sources,
@@ -44,8 +50,9 @@ executable('plebspot',
             'src/md.cpp',
             'src/plain.html.cpp',
             'src/render.cpp',
-            'src/util.cpp'
+            'src/util.cpp',
+            'src/sample_post.md.cpp',
            ],
            dependencies : [fmt_dep, mustache_dep, httplib_dep, dependency('threads')], 
            include_directories : include_directories('./thirdparty/hoedown/src'),
-           install : true)
+           install : true,)
