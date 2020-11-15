@@ -67,7 +67,7 @@ md_doc make_md_doc(filesystem::path p){
 	std::ifstream file_stream(p.string());
 	for(string line; getline(file_stream, line);){
 		//get metadata in form [title: my custom post title]::
-		if(line.find(MD_COMMENT_PREFIX) == 0 && line.find(MD_COMMENT_POSTFIX) == line.size()-MD_COMMENT_POSTFIX.size()){
+		if(line.find(MD_COMMENT_PREFIX) == 0 && line.rfind(MD_COMMENT_POSTFIX) == line.size()-MD_COMMENT_POSTFIX.size()){
 			pair<string, string> kv = util::split(
 				line.substr(MD_COMMENT_PREFIX.size(),
 				line.size()-MD_COMMENT_PREFIX.size()-MD_COMMENT_POSTFIX.size()),

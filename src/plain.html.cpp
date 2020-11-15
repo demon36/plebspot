@@ -3,13 +3,13 @@ const char* plain_html_tmpl = R"(
 <html lang="en-US">
 <head>
 	<meta charset="UTF-8">
-	<meta name="description" content="{{blog_desc}}">
+	<meta name="description" content="{{page_desc}}">
 	<meta name="keywords" content="{{keywords}}">
 	{{#author}}
 	<meta name="author" content="{{author}}">
 	{{/author}}
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>{{blog_title}} - {{blog_desc}}</title>
+	<title>{{blog_title}} - {{page_desc}}</title>
 	<link rel="alternate" type="application/rss+xml" title="{{blog_title}} - Feed" href="/feed">
 	<link rel="icon" href="/static/logo.png">
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">

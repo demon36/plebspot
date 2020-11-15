@@ -69,7 +69,7 @@ std::string render_home_page(){
 	mustache::data home_data;
 	fill_generic_date(home_data);
 	home_data.set("keywords", config::blog_keywords);
-
+	home_data.set("page_desc", config::blog_desc);
 	home_tmpl.render(home_data, ss);
 	return ss.str();
 }
@@ -83,10 +83,15 @@ string render_post(const string& path){
 	md::md_doc doc = md::make_md_doc(path);
 	string file_contents = fs::get_file_contents(path.c_str());
 
+	post_data.set("page_desc", doc.title);//title cannot be empty, default value is filename
 	if(!doc.author.empty())		post_data.set("author", doc.author);
 	if(!doc.date.empty())		post_data.set("date", doc.date);
-	if(!doc.keywords.empty())	post_data.set("keywords", doc.keywords);
 	if(!doc.category.empty())	post_data.set("category", doc.category);
+	if(doc.keywords.empty()){
+		post_data.set("keywords", config::blog_keywords);
+	} else {
+		post_data.set("keywords", doc.keywords);
+	}
 	
 	post_data.set("content", md::render_md_to_html(file_contents));
 	post_tmpl.render(post_data, ss);
