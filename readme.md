@@ -36,14 +36,14 @@ plebspot serve
 - [x] basic html templates
 - [x] init command 
 - [x] post categories/pages hierarchy
+- [x] captcha
+- [ ] rss feeds
+- [ ] comments
+- [ ] generate sitemap xml
 - [ ] logging
 - [ ] error reporting
-- [ ] optimization
 - [ ] server side syntax highlighting (use enscript or src-highlite)
 - [ ] compressed html cache
 - [ ] github style task list
-- [ ] rss feeds
-- [ ] comments
 - [ ] search
-- [ ] meta tags
-- [ ] generate sitemap xml
+- [x] meta tags
