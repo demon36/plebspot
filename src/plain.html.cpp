@@ -24,7 +24,7 @@ const char* plain_html_tmpl = R"(
 				<h1>
 					<a href="/" rel="home">
 						<img src="/static/logo.png">
-							{{blog_title}}
+						{{blog_title}}
 					</a>
 				</h1>
 				<p>{{blog_desc}}</p>
@@ -92,6 +92,20 @@ const char* plain_html_tmpl = R"(
 				</dl>
 
 				{{{content}}}
+
+				<div id="comments">
+					{{#comments_list}}
+					<li class="comment">
+						{{comment_text}} - {{comment_date}}
+					</li>
+					{{/comments_list}}
+				</div>
+				
+				<form method="POST" action="{{page_url}}/add_comment">
+					<input type="hidden" name="token" value="{{token}}" />
+					<input type="text" name="comment" />
+					<img src="/captcha/{{token}}" />
+				</form>
 			</div>
 		</div>
 	</div>

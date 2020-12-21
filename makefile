@@ -16,10 +16,11 @@ PROJECT_NAME := $(shell basename $(CURDIR))
 MAJOR_VERSION := 0
 MINOR_VERSION := 1.9
 
+DEP_SRC_FILES := ./thirdparty/cpp-base64/base64.cpp
 DEP_SRC_DIRS := ./thirdparty/fmt/src ./thirdparty/captcha/src
-DEP_CFLAGS := -I./thirdparty/cpp-httplib -I./thirdparty/fmt/include -I./thirdparty/hoedown/src -I./thirdparty/Mustache -I./thirdparty/captcha/include -I./thirdparty/plusaes/include
+DEP_CFLAGS := -I./thirdparty/cpp-httplib -I./thirdparty/fmt/include -I./thirdparty/hoedown/src -I./thirdparty/Mustache -I./thirdparty/captcha/include -I./thirdparty/plusaes/include -I./thirdparty/cpp-base64
 
-SRC_FILES := $(shell test -d $(SRC_DIR) && find $(SRC_DIR) $(DEP_SRC_DIRS)  -regex '.*\.\(c\|cc\|cpp\|cxx\)')
+SRC_FILES := $(shell test -d $(SRC_DIR) && find $(SRC_DIR) $(DEP_SRC_DIRS)  -regex '.*\.\(c\|cc\|cpp\|cxx\)') $(DEP_SRC_FILES)
 TEST_SRC_FILES := $(shell test -d $(TEST_SRC_DIR) && find $(TEST_SRC_DIR) -regex '.*\.\(c\|cc\|cpp\|cxx\)')
 OBJ_FILES := $(patsubst %,$(OBJ_DIR)/%.o,$(SRC_FILES))
 TEST_OBJ_FILES := $(patsubst $(TEST_SRC_DIR)/%,$(OBJ_DIR)/$(TEST_SRC_DIR)/%.o,$(TEST_SRC_FILES))
@@ -97,7 +98,7 @@ depend:
 	$(MAKE) -C ./thirdparty/hoedown
 
 install: all
-	cp $(BIN_DIR)/$(EXEC_FILE) ${HOME}/.local/bin/
+	cp $(BIN_DIR)/$(EXEC_FILE) '${HOME}/bin/'
 
 $(LIB_DIR)/$(A_FILE): $(OBJ_FILES)
 	@mkdir -p $(@D)

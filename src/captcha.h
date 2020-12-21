@@ -6,9 +6,9 @@
 
 namespace captcha{
 
-std::vector<unsigned char> gen_token();
-std::vector<unsigned char> gen_gif(const std::vector<unsigned char>& token);
-bool validate(const std::vector<unsigned char>& token, const std::string user_input);
+std::string gen_token();
+std::vector<unsigned char> gen_gif(const std::string& token);
+bool validate(const std::string& token, const std::string user_input);
 void test();
 
 }

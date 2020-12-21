@@ -6,6 +6,7 @@
 #include <time.h>
 #include <iostream>
 #include <fstream>
+#include <base64.h>
 
 using namespace std;
 
@@ -19,7 +20,7 @@ const unsigned char AES_IV[16] = {
 const int CAPTCHA_LEN = 6;//including null terminator
 const int CAPTCHA_AES_PADDED_LEN = plusaes::get_padded_encrypted_size(CAPTCHA_LEN);
 
-std::vector<unsigned char> gen_token(){
+std::string gen_token(){
 	int num_letters = 26;
 	array<unsigned char, 6> random_ids;
 	srand((unsigned) time(NULL) * getpid());
@@ -29,29 +30,32 @@ std::vector<unsigned char> gen_token(){
 	random_ids[5] = 0;
 	vector<unsigned char> encrypted(CAPTCHA_AES_PADDED_LEN);
 	plusaes::encrypt_cbc((unsigned char*)random_ids.data(), random_ids.size(), &AES_KEY[0], AES_KEY.size(), &AES_IV, &encrypted[0], encrypted.size(), true);
-	return encrypted;
+	return base64_encode(string((char*)encrypted.data(), encrypted.size()), true);
 }
 
-std::vector<unsigned char> gen_gif(const std::vector<unsigned char>& token){
+std::vector<unsigned char> gen_gif(const std::string& token){
 	unsigned long padded_size = 0;
+	string decoded_token = base64_decode(token);
 	vector<unsigned char> decrypted(CAPTCHA_AES_PADDED_LEN);
-	plusaes::decrypt_cbc(&token[0], token.size(), &AES_KEY[0], AES_KEY.size(), &AES_IV, &decrypted[0], decrypted.size(), &padded_size);
+	plusaes::decrypt_cbc((unsigned char*)decoded_token.c_str(), decoded_token.size(), &AES_KEY[0], AES_KEY.size(), &AES_IV, &decrypted[0], decrypted.size(), &padded_size);
 	std::vector<unsigned char> gif(gifsize);
 	captcha_for_letters(gif.data(), (unsigned char*)decrypted.data());
 	return gif;
 }
 
-bool validate(const std::vector<unsigned char>& token, const std::string user_input){
+bool validate(const std::string& token, const std::string user_input){
 	unsigned long padded_size = 0;
+	string decoded_token = base64_decode(token);
 	vector<unsigned char> decrypted(CAPTCHA_AES_PADDED_LEN);
-	plusaes::decrypt_cbc(&token[0], token.size(), &AES_KEY[0], AES_KEY.size(), &AES_IV, &decrypted[0], decrypted.size(), &padded_size);
+	plusaes::decrypt_cbc((unsigned char*)decoded_token.c_str(), decoded_token.size(), &AES_KEY[0], AES_KEY.size(), &AES_IV, &decrypted[0], decrypted.size(), &padded_size);
 	translate_letter_ids((unsigned char*)decrypted.data());
 	decrypted.resize(CAPTCHA_LEN);
 	return user_input == string((char*)decrypted.data());
 }
 
 void test(){
-	vector<unsigned char> token = captcha::gen_token();
+	string token = captcha::gen_token();
+	printf("token = %s\n", token.c_str());
 	vector<unsigned char> gif = captcha::gen_gif(token);
 	ofstream gifstream("./captcha.gif");
 	gifstream.write((const char*)gif.data(), gif.size());

@@ -84,6 +84,7 @@ string render_post(const string& path){
 	string file_contents = fs::get_file_contents(path.c_str());
 
 	post_data.set("page_desc", doc.title);//title cannot be empty, default value is filename
+	post_data.set("page_url", doc.url);
 	if(!doc.author.empty())		post_data.set("author", doc.author);
 	if(!doc.date.empty())		post_data.set("date", doc.date);
 	if(!doc.category.empty())	post_data.set("category", doc.category);
