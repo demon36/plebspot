@@ -1,12 +1,13 @@
-#include "util.h"
+#include "captcha.h"
 
 #include <fmt/core.h>
 #include <plusaes/plusaes.hpp>
-#include <captcha.h>
+#include <unistd.h>
 #include <time.h>
 #include <iostream>
 #include <fstream>
 #include <base64.h>
+#include <captcha.h>
 
 using namespace std;
 
@@ -17,15 +18,15 @@ const unsigned char AES_IV[16] = {
 	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 	0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
 };
-const int CAPTCHA_LEN = 6;//including null terminator
-const int CAPTCHA_AES_PADDED_LEN = plusaes::get_padded_encrypted_size(CAPTCHA_LEN);
+const unsigned long CAPTCHA_LEN = 6;//including null terminator
+const unsigned long CAPTCHA_AES_PADDED_LEN = plusaes::get_padded_encrypted_size(CAPTCHA_LEN);
 
 std::string gen_token(){
 	int num_letters = 26;
 	array<unsigned char, 6> random_ids;
 	srand((unsigned) time(NULL) * getpid());
 	for (size_t i = 0; i < random_ids.size()-1; ++i){
-		random_ids[i] = rand() % (num_letters-1);
+		random_ids[i] = (unsigned char)(rand() % (num_letters-1));
 	}
 	random_ids[5] = 0;
 	vector<unsigned char> encrypted(CAPTCHA_AES_PADDED_LEN);

@@ -36,7 +36,7 @@ endif
 
 TEST_FILE := main_test
 
-CFLAGS := -m$(ARCH) -Wall -Wconversion -Werror -g -std=c++17 -I$(INC_DIR) 
+CFLAGS := -m$(ARCH) -Wall -Werror -g -std=c++17 -I$(INC_DIR) #-Wconversion
 CFLAGS_DEBUG := -DDEBUG
 CFLAGS_RELEASE := -O3 -w -DNDEBUG
 INC := $(DEP_CFLAGS)
