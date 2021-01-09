@@ -97,6 +97,7 @@ const char* plain_html_tmpl = R"(
 
 				{{{content}}}
 
+				{{#comments_enabled}}
 				<br/><br/><br/><br/><h5>comments:</h5>
 				{{#comments_list}}
 				<div class="list-group">
@@ -113,15 +114,16 @@ const char* plain_html_tmpl = R"(
 				<br/>
 				<form method="POST" action="{{page_url}}/post_comment">
 					<input type="hidden" name="token" value="{{comment_token}}" />
-					<textarea name="comment" cols="45" rows="2" maxlength="65525" required="required" class="form-control" placeholder="leave a comment">
-					</textarea><br/>
-					<span class="input-group-text">
+					<textarea name="comment" cols="45" rows="2" maxlength="65525" required="required" class="form-control" placeholder="leave a comment"></textarea>
+					<br/>
+					<span class="input-group-text col-md-4">
 						<img src="/captcha/{{comment_token}}"/>
 					</span>
 					
-					<input type="text" name="captcha" class="form-control"/><br/>
+					<input type="text" name="captcha" class="form-control col-md-4"/><br/>
 					<input type="submit" value="submit" class="btn btn-dark"/>
 				</form>
+				{{/comments_enabled}}
 				<br/>
 			</div>
 		</div>

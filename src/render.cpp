@@ -106,6 +106,8 @@ string render_post(const string& path, const string& alert_msg){
 		post_data.set("keywords", doc.keywords);
 	}
 
+	//todo: if(comments_enabled)
+	post_data.set("comments_enabled", true);
 	fill_comments(post_data, fs::get_comments(path));
 	post_data.set("content", md::render_md_to_html(file_contents));
 	post_data.set("comment_token", captcha::gen_token());
