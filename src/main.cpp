@@ -9,6 +9,8 @@
 #include "md.h"
 #include "render.h"
 #include "config.h"
+#include "captcha.h"
+#include "util.h"
 
 using namespace std;
 using namespace httplib;
@@ -49,26 +51,52 @@ void serve(){
 
 	svr.Get(R"(/pages/(([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+))", [&](const Request& req, Response& res) {
 		auto pagePath = req.matches[1];
-		res.set_content(render::render_post(string("./pages/") + pagePath.str()), "text/html");
+		res.set_content(render::render_post(string("pages/") + pagePath.str()), "text/html");
 	});
 
 	svr.Get(R"(/posts/(([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+))", [&](const Request& req, Response& res) {
 		auto postPath = req.matches[1];
-		res.set_content(render::render_post(string("./posts/") + postPath.str()), "text/html");
+		res.set_content(render::render_post(string("posts/") + postPath.str()), "text/html");
 	});
+
+    svr.Post(R"(/(posts/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+)/post_comment)", [&](const Request& req, Response& res) {
+        auto postPath = req.matches[1];
+        if (req.has_param("token") && req.has_param("comment") && req.has_param("captcha")) {
+            string token = req.get_param_value("token");
+            string captcha = req.get_param_value("captcha");
+            string comment = req.get_param_value("comment");
+            if (!util::trim(comment).empty() && comment.size() <= 256 && captcha::validate(token, captcha)){
+                util::post_comment(postPath, comment);
+                res.set_content(render::render_post(string("posts/") + postPath.str()), "text/html");
+                return;
+            }
+        }
+        res.set_content(render::render_post(string("posts/") + postPath.str(), "bad captcha"), "text/html");
+    });
 
 	svr.set_error_handler([](const Request& req, Response& res) {
 		fmt::print("error while serving url {}\n", req.path);
 	});
 
 	svr.Get(R"(/static/([a-zA-Z0-9_\-\.]+))", [&](const Request& req, Response& res) {
-		string target_path = string("./static/") + req.matches[1].str();
+		string target_path = string("static/") + req.matches[1].str();
 		fmt::print("requesting static uri {}\n", target_path);
 		if(filesystem::exists(target_path)){
 			res.set_content(fs::get_file_contents(target_path.c_str()), "");
 			return res.status = 200;
 		} else {
 			return res.status = 404;
+		}
+	});
+
+	svr.Get(R"(/captcha/(.+))", [&](const Request& req, Response& res) {
+		string token = req.matches[1].str();
+		std::vector<unsigned char> gif = captcha::gen_gif(token);
+		if(gif.empty()){
+			return res.status = 404;
+		} else {
+		    res.set_content((char*)gif.data(), gif.size(), "");
+			return res.status = 200;
 		}
 	});
 

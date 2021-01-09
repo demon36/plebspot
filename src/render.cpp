@@ -3,6 +3,7 @@
 #include "fs.h"
 #include "md.h"
 #include "config.h"
+#include "captcha.h"
 
 #include <sstream>
 #include <fmt/core.h>
@@ -74,7 +75,7 @@ std::string render_home_page(){
 	return ss.str();
 }
 
-string render_post(const string& path){
+string render_post(const string& path, const string& alert_msg){
 	stringstream ss;
 	mustache::mustache post_tmpl = get_template();
 	mustache::data post_data;
@@ -95,6 +96,10 @@ string render_post(const string& path){
 	}
 	
 	post_data.set("content", md::render_md_to_html(file_contents));
+	post_data.set("comment_token", captcha::gen_token());
+	if(!alert_msg.empty()){
+        post_data.set("alert_msg", alert_msg);
+	}
 	post_tmpl.render(post_data, ss);
 	return ss.str();
 }

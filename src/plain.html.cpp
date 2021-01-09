@@ -76,6 +76,10 @@ const char* plain_html_tmpl = R"(
 			</div>
 
 			<div class="content col-lg-8">
+				{{#alert_msg}}
+				<div class="alert alert-danger" role="alert">{{alert_msg}}</div>
+				{{/alert_msg}}
+
 				<dl class="row">
 					{{#date}}
 						<dt class="col-sm-3">date</dt>
@@ -101,10 +105,14 @@ const char* plain_html_tmpl = R"(
 					{{/comments_list}}
 				</div>
 				
-				<form method="POST" action="{{page_url}}/add_comment">
-					<input type="hidden" name="token" value="{{token}}" />
-					<input type="text" name="comment" />
-					<img src="/captcha/{{token}}" />
+				<br/>
+				<h5>leave a comment:</h5>
+				<form method="POST" action="{{page_url}}/post_comment">
+					<input type="hidden" name="token" value="{{comment_token}}" />
+					<textarea name="comment" cols="45" rows="2" maxlength="256" required="required">{{pending_comment}}</textarea><br/>
+					<img src="/captcha/{{comment_token}}" /><br/>
+					<input type="text" name="captcha" /><br/><br/>
+					<input type="submit" value="submit" />
 				</form>
 			</div>
 		</div>

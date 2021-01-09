@@ -38,7 +38,11 @@ std::vector<unsigned char> gen_gif(const std::string& token){
 	unsigned long padded_size = 0;
 	string decoded_token = base64_decode(token);
 	vector<unsigned char> decrypted(CAPTCHA_AES_PADDED_LEN);
-	plusaes::decrypt_cbc((unsigned char*)decoded_token.c_str(), decoded_token.size(), &AES_KEY[0], AES_KEY.size(), &AES_IV, &decrypted[0], decrypted.size(), &padded_size);
+	plusaes::Error err = plusaes::decrypt_cbc((unsigned char*)decoded_token.c_str(), decoded_token.size(), &AES_KEY[0], AES_KEY.size(), &AES_IV, &decrypted[0], decrypted.size(), &padded_size);
+	if(err != plusaes::kErrorOk){
+		return vector<unsigned char>();
+	}
+	cout<<"decrypted = "<<(char*)decrypted.data()<<endl;
 	std::vector<unsigned char> gif(gifsize);
 	captcha_for_letters(gif.data(), (unsigned char*)decrypted.data());
 	return gif;

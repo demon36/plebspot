@@ -8,6 +8,7 @@ namespace util{
 std::pair<std::string, std::string> split(const std::string& s, const std::string& token);
 std::string trim(const std::string &s);
 std::map<std::string, std::string> parse_pairs(const std::string& kv_pairs);
+void post_comment(const std::string& post_path, const std::string& comment);
 
 }
 
