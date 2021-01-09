@@ -47,11 +47,4 @@ map<string, string> parse_pairs(const string& kv_pairs){
 	return output;
 }
 
-void post_comment(const string& post_path, const string& comment){
-	static const string comments_file_path = post_path + ".comments";
-	ofstream comments_file(comments_file_path, std::ios::ate);
-	comments_file << comment << "\n";
-	comments_file.flush();
-}
-
 }

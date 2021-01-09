@@ -66,12 +66,12 @@ void serve(){
             string captcha = req.get_param_value("captcha");
             string comment = req.get_param_value("comment");
             if (!util::trim(comment).empty() && comment.size() <= 256 && captcha::validate(token, captcha)){
-                util::post_comment(postPath, comment);
-                res.set_content(render::render_post(string("posts/") + postPath.str()), "text/html");
+                fs::post_comment(postPath, comment);
+                res.set_content(render::render_post(postPath.str()), "text/html");
                 return;
             }
         }
-        res.set_content(render::render_post(string("posts/") + postPath.str(), "bad captcha"), "text/html");
+        res.set_content(render::render_post(postPath.str(), "bad captcha"), "text/html");
     });
 
 	svr.set_error_handler([](const Request& req, Response& res) {

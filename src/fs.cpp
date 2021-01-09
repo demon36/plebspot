@@ -1,27 +1,13 @@
 #include "fs.h"
+#include "util.h"
 
 #include <filesystem>
 #include <fstream>
+#include <mustache.hpp>
 
 using namespace std;
 //only a single level of hierarchy is supported
 namespace fs{
-
-map<string, vector<string>> get_md_files_map(const string& parent_path){
-	map<string, vector<string>> md_files_map;
-	for(auto& i: filesystem::directory_iterator(parent_path)){
-		if(i.is_directory()){
-			for(auto& j: filesystem::directory_iterator(i)){
-				if(!j.is_directory()){
-					md_files_map[i.path().filename().string()].push_back(j.path().filename().string());
-				}
-			}
-		} else {
-			md_files_map[""].push_back(i.path().filename().string());
-		}
-	}
-	return md_files_map;
-}
 
 std::string get_file_contents(const char* filename){
 	std::ifstream in(filename, std::ios::in | std::ios::binary);
@@ -36,6 +22,25 @@ std::string get_file_contents(const char* filename){
 	}
 	throw(errno);
 }
+
+void post_comment(const string& post_path, const string& comment){
+	string comments_file_path = post_path + ".comments";
+	ofstream comments_file(comments_file_path, std::ios::app);
+	comments_file << kainjow::mustache::html_escape(comment) << "\n";
+	comments_file.flush();
+}
+
+vector<comment> get_comments(const string& post_path){
+	vector<comment> comments;
+	string comments_file_path = post_path + ".comments";
+	ifstream comments_file(comments_file_path, std::ios::in);
+	for( std::string line; getline( comments_file, line ); ) {
+		comments.emplace_back(comment{"", "", line});
+	}
+	return comments;
+}
+
+
 
 }
 

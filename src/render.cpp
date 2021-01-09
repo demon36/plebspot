@@ -5,7 +5,6 @@
 #include "config.h"
 #include "captcha.h"
 
-#include <sstream>
 #include <fmt/core.h>
 #include <mustache.hpp>
 
@@ -60,6 +59,18 @@ void fill_generic_date(mustache::data& page_data){
 	page_data.set("cat_posts_list", cat_posts_list);
 }
 
+void fill_comments(mustache::data& page_data, const vector<fs::comment>& comments){
+	mustache::data comments_list{mustache::data::type::list};
+	for(const fs::comment& c : comments){
+		mustache::data comment_data;
+		comment_data.set("author", c.author);
+		comment_data.set("date", c.date);
+		comment_data.set("message", c.message);
+		comments_list << comment_data;
+	}
+	page_data.set("comments_list", comments_list);
+}
+
 mustache::mustache get_template(){
 	return mustache::mustache(fs::get_file_contents(fmt::format("./{}/{}", TEMPLATES_DIR, config::html_tmpl.c_str()).c_str()));
 }
@@ -94,7 +105,8 @@ string render_post(const string& path, const string& alert_msg){
 	} else {
 		post_data.set("keywords", doc.keywords);
 	}
-	
+
+	fill_comments(post_data, fs::get_comments(path));
 	post_data.set("content", md::render_md_to_html(file_contents));
 	post_data.set("comment_token", captcha::gen_token());
 	if(!alert_msg.empty()){

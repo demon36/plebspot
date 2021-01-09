@@ -94,7 +94,7 @@ map<string, vector<md_doc>> get_md_docs(doc_type type){
 	for(auto& i: filesystem::directory_iterator(scan_path)){
 		if(i.is_directory()){
 			for(auto& j: filesystem::directory_iterator(i)){
-				if(!j.is_directory()){
+				if(!j.is_directory() && j.path().extension() == ".md"){
 					docs_map[i.path().filename().string()].push_back(make_md_doc(j.path()));
 				}
 			}

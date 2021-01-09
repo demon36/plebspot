@@ -48,7 +48,7 @@ std::vector<unsigned char> gen_gif(const std::string& token){
 	return gif;
 }
 
-bool validate(const std::string& token, const std::string user_input){
+bool validate(const std::string& token, const std::string& user_input){
 	unsigned long padded_size = 0;
 	string decoded_token = base64_decode(token);
 	vector<unsigned char> decrypted(CAPTCHA_AES_PADDED_LEN);

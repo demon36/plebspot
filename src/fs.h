@@ -8,9 +8,16 @@
 //only a single level of hierarchy is supported
 namespace fs{
 
-//key: parent folder/category, empty string if md file is a direct child, value: page path
-std::map<std::string, std::vector<std::string>> get_md_files_map(const std::string& parent_path);
+struct comment
+{
+	std::string author;
+	std::string date;
+	std::string message;	
+};
+
 std::string get_file_contents(const char* filename);
+void post_comment(const std::string& post_path, const std::string& comment);
+std::vector<comment> get_comments(const std::string& post_path);
 
 }
 #endif

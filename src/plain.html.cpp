@@ -97,23 +97,32 @@ const char* plain_html_tmpl = R"(
 
 				{{{content}}}
 
-				<div id="comments">
-					{{#comments_list}}
-					<li class="comment">
-						{{comment_text}} - {{comment_date}}
-					</li>
-					{{/comments_list}}
+				<br/><br/><br/><br/><h5>comments:</h5>
+				{{#comments_list}}
+				<div class="list-group">
+					<div class="list-group-item list-group-item-action" aria-current="true">
+						<p class="mb-1">{{{message}}}</p>
+						<div class="d-flex w-100 justify-content-between">
+							<small>{{author}}</small>
+							<small>{{date}}</small>
+						</div>
+					</div>
 				</div>
+				{{/comments_list}}
 				
 				<br/>
-				<h5>leave a comment:</h5>
 				<form method="POST" action="{{page_url}}/post_comment">
 					<input type="hidden" name="token" value="{{comment_token}}" />
-					<textarea name="comment" cols="45" rows="2" maxlength="256" required="required">{{pending_comment}}</textarea><br/>
-					<img src="/captcha/{{comment_token}}" /><br/>
-					<input type="text" name="captcha" /><br/><br/>
-					<input type="submit" value="submit" />
+					<textarea name="comment" cols="45" rows="2" maxlength="65525" required="required" class="form-control" placeholder="leave a comment">
+					</textarea><br/>
+					<span class="input-group-text">
+						<img src="/captcha/{{comment_token}}"/>
+					</span>
+					
+					<input type="text" name="captcha" class="form-control"/><br/>
+					<input type="submit" value="submit" class="btn btn-dark"/>
 				</form>
+				<br/>
 			</div>
 		</div>
 	</div>
