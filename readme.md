@@ -37,15 +37,11 @@ plebspot serve
 - [x] init command 
 - [x] post categories/pages hierarchy
 - [x] captcha
-- [x] comments
-- [ ] store comment author + date
-- [ ] show old comment message at captcha failure
-- [ ] site wide and post specific comments config
-- [ ] prevent rendering .comments file
+- [ ] comments
 - [ ] rss feeds
 - [ ] generate sitemap xml
 - [ ] logging
 - [ ] server side syntax highlighting (use enscript or src-highlite)
 - [ ] compressed html cache
 - [ ] github style task list
-- [x] meta tags
+- [ ] add command restart
