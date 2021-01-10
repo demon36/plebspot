@@ -1,6 +1,6 @@
 #include "render.h"
 
-#include "fs.h"
+#include "util.h"
 #include "md.h"
 #include "config.h"
 #include "captcha.h"
@@ -59,9 +59,9 @@ void fill_generic_date(mustache::data& page_data){
 	page_data.set("cat_posts_list", cat_posts_list);
 }
 
-void fill_comments(mustache::data& page_data, const vector<fs::comment>& comments){
+void fill_comments(mustache::data& page_data, const vector<comments::comment>& comments){
 	mustache::data comments_list{mustache::data::type::list};
-	for(const fs::comment& c : comments){
+	for(const comments::comment& c : comments){
 		mustache::data comment_data;
 		comment_data.set("author", c.author);
 		comment_data.set("date", c.date);
@@ -72,7 +72,7 @@ void fill_comments(mustache::data& page_data, const vector<fs::comment>& comment
 }
 
 mustache::mustache get_template(){
-	return mustache::mustache(fs::get_file_contents(fmt::format("./{}/{}", TEMPLATES_DIR, config::html_tmpl.c_str()).c_str()));
+	return mustache::mustache(util::get_file_contents(fmt::format("./{}/{}", TEMPLATES_DIR, config::html_tmpl.c_str()).c_str()));
 }
 
 std::string render_home_page(){
@@ -86,14 +86,14 @@ std::string render_home_page(){
 	return ss.str();
 }
 
-string render_post(const string& path, const string& alert_msg){
+string render_post(const string& path, const string& alert_msg, const comments::comment& com){
 	stringstream ss;
 	mustache::mustache post_tmpl = get_template();
 	mustache::data post_data;
 	fill_generic_date(post_data);
 
 	md::md_doc doc = md::make_md_doc(path);
-	string file_contents = fs::get_file_contents(path.c_str());
+	string file_contents = util::get_file_contents(path.c_str());
 
 	post_data.set("page_desc", doc.title);//title cannot be empty, default value is filename
 	post_data.set("page_url", doc.url);
@@ -106,11 +106,13 @@ string render_post(const string& path, const string& alert_msg){
 		post_data.set("keywords", doc.keywords);
 	}
 
-	//todo: if(comments_enabled)
-	post_data.set("comments_enabled", true);
-	fill_comments(post_data, fs::get_comments(path));
+	bool comments_enabled = false;
+	if(comments_enabled){
+		post_data.set("comments_enabled", true);
+		fill_comments(post_data, comments::get_comments(path));
+	}
 	post_data.set("content", md::render_md_to_html(file_contents));
-	post_data.set("comment_token", captcha::gen_token());
+	post_data.set("comment_token", comments::gen_token());
 	if(!alert_msg.empty()){
         post_data.set("alert_msg", alert_msg);
 	}

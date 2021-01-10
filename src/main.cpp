@@ -5,15 +5,16 @@
 #include <string>
 #include <sstream>
 
-#include "fs.h"
 #include "md.h"
 #include "render.h"
 #include "config.h"
 #include "captcha.h"
 #include "util.h"
+#include "comments.h"
 
 using namespace std;
 using namespace httplib;
+using namespace err;
 
 extern const char* plain_html_tmpl;
 extern const char* sample_post_md;
@@ -49,40 +50,50 @@ void serve(){
 		res.set_content(render::render_home_page(), "text/html");
 	});
 
-	svr.Get(R"(/pages/(([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+))", [&](const Request& req, Response& res) {
-		auto pagePath = req.matches[1];
-		res.set_content(render::render_post(string("pages/") + pagePath.str()), "text/html");
+	svr.Get(R"(/(pages/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+))", [&](const Request& req, Response& res) {
+		auto page_path = req.matches[1];
+		res.set_content(render::render_post(page_path.str()), "text/html");
 	});
 
-	svr.Get(R"(/posts/(([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+))", [&](const Request& req, Response& res) {
-		auto postPath = req.matches[1];
-		res.set_content(render::render_post(string("posts/") + postPath.str()), "text/html");
+	svr.Get(R"(/(posts/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+))", [&](const Request& req, Response& res) {
+		auto post_path = req.matches[1];
+		res.set_content(render::render_post(post_path.str()), "text/html");
 	});
 
-    svr.Post(R"(/(posts/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+)/post_comment)", [&](const Request& req, Response& res) {
-        auto postPath = req.matches[1];
-        if (req.has_param("token") && req.has_param("comment") && req.has_param("captcha")) {
-            string token = req.get_param_value("token");
-            string captcha = req.get_param_value("captcha");
-            string comment = req.get_param_value("comment");
-            if (!util::trim(comment).empty() && comment.size() <= 256 && captcha::validate(token, captcha)){
-                fs::post_comment(postPath, comment);
-                res.set_content(render::render_post(postPath.str()), "text/html");
-                return;
-            }
-        }
-        res.set_content(render::render_post(postPath.str(), "bad captcha"), "text/html");
-    });
+	svr.Post(R"(/(posts/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+)/post_comment)", [&](const Request& req, Response& res) {
+		//todo: site wide and post specific comments config
+		//todo: prevent rendering .md.comments files
+		//todo: show old comment message at captcha failure
+		auto post_path = req.matches[1];
+
+		comments::comment com = {
+			.author = req.get_param_value("author"),
+			.date = util::get_current_time(),
+			.message = req.get_param_value("comment"),
+		};
+
+		errors err_code = comments::post_comment(
+			post_path.str(), com, req.get_param_value("token"), req.get_param_value("captcha"));
+
+		if(err_code == errors::success) {
+			res.set_content(render::render_post(post_path.str()), "text/html");
+		} else {
+			res.set_content(
+				render::render_post(post_path.str(), err::to_string(err_code), com),
+				"text/html"
+				);
+		}
+	});
 
 	svr.set_error_handler([](const Request& req, Response& res) {
 		fmt::print("error while serving url {}\n", req.path);
 	});
 
-	svr.Get(R"(/static/([a-zA-Z0-9_\-\.]+))", [&](const Request& req, Response& res) {
-		string target_path = string("static/") + req.matches[1].str();
+	svr.Get(R"(/(static/[a-zA-Z0-9_\-\.]+))", [&](const Request& req, Response& res) {
+		string target_path = req.matches[1].str();
 		fmt::print("requesting static uri {}\n", target_path);
 		if(filesystem::exists(target_path)){
-			res.set_content(fs::get_file_contents(target_path.c_str()), "");
+			res.set_content(util::get_file_contents(target_path.c_str()), "");
 			return res.status = 200;
 		} else {
 			return res.status = 404;
@@ -91,7 +102,7 @@ void serve(){
 
 	svr.Get(R"(/captcha/(.+))", [&](const Request& req, Response& res) {
 		string token = req.matches[1].str();
-		std::vector<unsigned char> gif = captcha::gen_gif(token);
+		std::vector<unsigned char> gif = comments::gen_captcha_gif(token);
 		if(gif.empty()){
 			return res.status = 404;
 		} else {

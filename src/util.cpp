@@ -1,11 +1,26 @@
 #include "util.h"
 
+#include <ctime>
 #include <fmt/core.h>
 #include <fstream>
 
 using namespace std;
 
 namespace util{
+
+string get_file_contents(const string& filename){
+	std::ifstream in(filename, std::ios::in | std::ios::binary);
+	if(in){
+		std::string contents;
+		in.seekg(0, std::ios::end);
+		contents.resize(in.tellg());
+		in.seekg(0, std::ios::beg);
+		in.read(&contents[0], contents.size());
+		in.close();
+		return(contents);
+	}
+	throw(errno);//todo: do not use exceptions
+}
 
 pair<string, string> split(const string& s, const string& token){
 	size_t token_idx = s.find(token);
@@ -45,6 +60,16 @@ map<string, string> parse_pairs(const string& kv_pairs){
 		output[trim(key)] = trim(value);
 	}
 	return output;
+}
+
+string get_current_time(){
+	time_t rawtime;
+	struct tm* timeinfo;
+	char buffer[80];
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+	strftime(buffer, sizeof(buffer), "%d-%m-%Y %H:%M:%S", timeinfo);
+	return string(buffer);
 }
 
 }
