@@ -1,6 +1,5 @@
 #include "config.h"
 
-#include "fs.h"
 #include "util.h"
 
 #include <fstream>
@@ -16,7 +15,7 @@ string blog_keywords = "fun, diy";
 int http_port = 1993;
 
 void load(){
-	string file_contents = fs::get_file_contents(CONFIG_FILE);
+	string file_contents = util::get_file_contents(CONFIG_FILE);
 	map<string, string> config_items = util::parse_pairs(file_contents);
 
 	for( const auto& config_item : config_items) {

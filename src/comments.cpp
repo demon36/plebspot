@@ -64,12 +64,10 @@ bool validate_captcha(const std::string& token, const std::string& user_input){
 }
 
 err::errors post_comment(const string& post_path, const comments::comment& comment, const string& token, const string& captcha_answer){
-//done: make sure post exists
 //todo: assert comments are enabled
 //todo: only accept token if num comments is incremented by less than ~5
 //todo: store ip, post id, num comments in captcha token
 //todo: store comment author and date
-//todo: show correct captcha error messages
 	std::error_code err_code;
 	if(!filesystem::exists(post_path)){
 		return err::errors::comment_post_not_exist;
