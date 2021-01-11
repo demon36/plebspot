@@ -116,8 +116,9 @@ string render_post(const string& path, const string& alert_msg, const comments::
 	
 	post_data.set("content", md::render_md_to_html(file_contents));
 	if(!alert_msg.empty()){
-        post_data.set("alert_msg", alert_msg);
-        post_data.set("comment_msg", com.message);
+		post_data.set("alert_msg", alert_msg);
+		post_data.set("comment_msg", com.message);
+		post_data.set("comment_author", com.author);
 	}
 	post_tmpl.render(post_data, ss);
 	return ss.str();

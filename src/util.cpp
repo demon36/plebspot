@@ -19,7 +19,7 @@ string get_file_contents(const string& filename){
 		in.close();
 		return(contents);
 	}
-	throw(errno);//todo: do not use exceptions
+	return "";//todo: use outcomes
 }
 
 pair<string, string> split(const string& s, const string& token){

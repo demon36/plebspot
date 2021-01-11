@@ -28,6 +28,7 @@ const unsigned long CAPTCHA_AES_PADDED_LEN = plusaes::get_padded_encrypted_size(
 const string COMMENTS_FILE_SUFFIX = ".comments";
 const size_t MAX_COMMENT_MESSAGE_LENGTH = 256;
 const size_t MAX_COMMENTS_COUNT_DIFF = 10;
+const char COMMENT_PARTS_DELIMITER = '&';
 
 std::string serialize_token(const token& tok){
 	vector<unsigned char> encrypted(CAPTCHA_AES_PADDED_LEN);
@@ -109,7 +110,6 @@ bool validate_captcha(const string& post_path, const string& token_str, const st
 }
 
 err::errors post_comment(const string& post_path, const comments::comment& comment, const string& token, const string& captcha_answer){
-//todo: store comment author and date
 	if(!config::comments_enabled){
 		return err::errors::comments_disabled;
 	}
@@ -146,7 +146,10 @@ err::errors post_comment(const string& post_path, const comments::comment& comme
 
 	string comments_file_path = post_path + COMMENTS_FILE_SUFFIX;
 	ofstream comments_file(comments_file_path, std::ios::app);
-	comments_file << kainjow::mustache::html_escape(msg) << "\n";
+	comments_file
+		<< author << COMMENT_PARTS_DELIMITER
+		<< comment.date << COMMENT_PARTS_DELIMITER
+		<< kainjow::mustache::html_escape(msg) << "\n";
 	comments_file.flush();
 
 	return err::errors::success;
@@ -157,7 +160,10 @@ vector<comment> get_comments(const string& post_path){
 	string comments_file_path = post_path + COMMENTS_FILE_SUFFIX;
 	ifstream comments_file(comments_file_path, std::ios::in);
 	for( std::string line; getline( comments_file, line ); ) {
-		comments.emplace_back(comment{"anonymous", "30-9-1993", line});
+		string author = line.substr(0, line.find(COMMENT_PARTS_DELIMITER));
+		string date = line.substr(author.size() + 1, line.find(COMMENT_PARTS_DELIMITER, author.size() + 1) - author.size() - 1);
+		string msg = line.substr(author.size() + date.size() + 2, -1);
+		comments.emplace_back(comment{author, date, msg});
 	}
 	return comments;
 }
