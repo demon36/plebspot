@@ -70,6 +70,7 @@ void serve(){
 			.author = req.get_param_value("author"),
 			.date = util::get_current_time(),
 			.message = req.get_param_value("comment"),
+			.author_ip = req.remote_addr,
 		};
 
 		errors err_code = comments::post_comment(
@@ -130,6 +131,8 @@ int main(int argc, char const *argv[])
 		init();
 	} else if(argc == 2 && strcmp(argv[1], "serve") == 0){
 		serve();
+	} else if(argc == 2 && strcmp(argv[1], "test") == 0){
+		comments::test();
 	} else {
 		help();
 	}
