@@ -115,7 +115,7 @@ const char* plain_html_tmpl = R"(
 				<form method="POST" action="{{page_url}}/post_comment">
 					<input type="hidden" name="token" value="{{comment_token}}" />
 					<input type="text" name="author" class="form-control col-md-4" placeholder="author" />
-					<textarea name="comment" cols="45" rows="2" maxlength="256" required="required" class="form-control" placeholder="message">{{{comment_message}}}</textarea>
+					<textarea name="comment" cols="45" rows="2" maxlength="256" required="required" class="form-control" placeholder="message">{{{comment_msg}}}</textarea>
 					<br/>
 					<span class="input-group-text col-md-4">
 						<img src="/captcha/{{comment_token}}"/>

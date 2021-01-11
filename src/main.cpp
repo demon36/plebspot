@@ -51,19 +51,17 @@ void serve(){
 		res.set_content(render::render_home_page(), "text/html");
 	});
 
-	svr.Get(R"(/(pages/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+))", [&](const Request& req, Response& res) {
+	svr.Get(R"(/(pages/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+\.md))", [&](const Request& req, Response& res) {
 		auto page_path = req.matches[1];
 		res.set_content(render::render_post(page_path.str()), "text/html");
 	});
 
-	svr.Get(R"(/(posts/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+))", [&](const Request& req, Response& res) {
+	svr.Get(R"(/(posts/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+\.md))", [&](const Request& req, Response& res) {
 		auto post_path = req.matches[1];
 		res.set_content(render::render_post(post_path.str()), "text/html");
 	});
 
-	svr.Post(R"(/(posts/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+)/post_comment)", [&](const Request& req, Response& res) {
-		//todo: prevent rendering .md.comments files
-		//todo: show old comment message at captcha failure
+	svr.Post(R"(/(posts/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+\.md)/post_comment)", [&](const Request& req, Response& res) {
 		auto post_path = req.matches[1];
 
 		comments::comment com = {

@@ -138,9 +138,15 @@ err::errors post_comment(const string& post_path, const comments::comment& comme
 		return err::errors::captcha_wrong_answer;
 	}
 
+	string author = comment.author;
+	string msg = comment.message;
+	//todo: optimize and add more constraints	
+	util::replace_all(author, "\n", "");
+	util::replace_all(msg, "\n", "<br/>");
+
 	string comments_file_path = post_path + COMMENTS_FILE_SUFFIX;
 	ofstream comments_file(comments_file_path, std::ios::app);
-	comments_file << kainjow::mustache::html_escape(comment.message) << "\n";
+	comments_file << kainjow::mustache::html_escape(msg) << "\n";
 	comments_file.flush();
 
 	return err::errors::success;
