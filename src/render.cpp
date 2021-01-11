@@ -116,6 +116,7 @@ string render_post(const string& path, const string& alert_msg, const comments::
 	post_data.set("comment_token", comments::gen_token(path, com.author_ip, coms.size()));
 	if(!alert_msg.empty()){
         post_data.set("alert_msg", alert_msg);
+        post_data.set("comment_msg", com.message);
 	}
 	post_tmpl.render(post_data, ss);
 	return ss.str();

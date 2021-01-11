@@ -61,7 +61,6 @@ void serve(){
 	});
 
 	svr.Post(R"(/(posts/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+)/post_comment)", [&](const Request& req, Response& res) {
-		//todo: site wide and post specific comments config
 		//todo: prevent rendering .md.comments files
 		//todo: show old comment message at captcha failure
 		auto post_path = req.matches[1];

@@ -26,6 +26,7 @@ const unsigned char AES_IV[16] = {
 const unsigned long CAPTCHA_AES_PADDED_LEN = plusaes::get_padded_encrypted_size(sizeof(token));
 const string COMMENTS_FILE_SUFFIX = ".comments";
 const size_t MAX_COMMENT_MESSAGE_LENGTH = 256;
+const size_t MAX_COMMENTS_COUNT_DIFF = 10;
 
 std::string serialize_token(const token& tok){
 	vector<unsigned char> encrypted(CAPTCHA_AES_PADDED_LEN);
@@ -67,24 +68,47 @@ std::string gen_token(const string& post_path, const string& ip, std::size_t num
 	return serialize_token(tok);
 }
 
-std::vector<unsigned char> gen_captcha_gif(const std::string& token_str){
+std::vector<unsigned char> gen_captcha_gif(const string& token_str){
 	token tok = deserialize_token(token_str);
 	std::vector<unsigned char> gif(gifsize);
-	captcha_for_letters(gif.data(), &tok.captcha_answer[0]);
+	captcha_for_letters(gif.data(), (unsigned char*)&tok.captcha_answer[0]);
 	return gif;
 }
 
-bool validate_captcha(const std::string& token_str, const std::string& user_input){
+bool ips_match(unsigned char ip1[4], unsigned char ip2[4]){
+	//todo: enhance this
+	return ip1[0] == ip2[0] &&
+		ip1[1] == ip2[1] &&
+		ip1[2] == ip2[2] &&
+		ip1[3] == ip2[3];
+}
+
+bool captcha_answers_match(char c1[CAPTCHA_LEN], char c2[CAPTCHA_LEN]){
+	//todo: enhance this
+	return c1[0] == c2[0] &&
+		c1[1] == c2[1] &&
+		c1[2] == c2[2] &&
+		c1[3] == c2[3] &&
+		c1[4] == c2[4] &&
+		c1[5] == c2[5];
+}
+
+bool validate_captcha(const string& post_path, const string& token_str, const string& user_input, const std::string& ip){
+	//todo: test
+	unsigned char request_ip[4];
+	char user_input_cstr[CAPTCHA_LEN];
+	memcpy(user_input_cstr, user_input.c_str(), CAPTCHA_LEN);
+	sscanf(ip.c_str(), "%hhu.%hhu.%hhu.%hhu", &request_ip[0], &request_ip[1], &request_ip[2], &request_ip[3]);
 	token tok = deserialize_token(token_str);
-	translate_letter_ids(&tok.captcha_answer[0]);
-	decrypted.resize(CAPTCHA_LEN);
-	return user_input == string(&tok.captcha_answer[0]);
+	translate_letter_ids((unsigned char*)&tok.captcha_answer[0]);//translate letters ids to actual letters
+	return captcha_answers_match(tok.captcha_answer, user_input_cstr) &&
+		ips_match(tok.ip, request_ip) &&
+		tok.post_id_hash == std::hash<string>{}(post_path) &&
+		get_comments(post_path).size()-tok.num_comments < MAX_COMMENTS_COUNT_DIFF;
 }
 
 err::errors post_comment(const string& post_path, const comments::comment& comment, const string& token, const string& captcha_answer){
-//todo: assert comments are enabled
-//todo: only accept token if num comments is incremented by less than ~5
-//todo: store ip, post id, num comments in captcha token
+//todo: assert comments are enabled in configuration
 //todo: store comment author and date
 	std::error_code err_code;
 	if(!filesystem::exists(post_path)){
@@ -107,7 +131,7 @@ err::errors post_comment(const string& post_path, const comments::comment& comme
 		return err::errors::captcha_answer_not_provided;
 	}
 
-	if(!validate_captcha(token, captcha_answer)){
+	if(!validate_captcha(post_path, token, captcha_answer, comment.author_ip)){
 		return err::errors::captcha_wrong_answer;
 	}
 
@@ -160,7 +184,7 @@ void test_captcha(){
 	string user_input;
 	printf("enter captcha\n");
 	cin >> user_input;
-	if(validate_captcha(token, user_input)){
+	if(validate_captcha("mypost.md", token, user_input, "192.168.1.1")){
 		printf("valid token\n");
 	} else {
 		printf("invalid token\n");
