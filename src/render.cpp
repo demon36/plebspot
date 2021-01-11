@@ -86,7 +86,7 @@ std::string render_home_page(){
 	return ss.str();
 }
 
-string render_post(const string& path, const string& alert_msg, const comments::comment& com){
+string render_post(const string& path, const string& req_ip, const string& alert_msg, const comments::comment& com){
 	stringstream ss;
 	mustache::mustache post_tmpl = get_template();
 	mustache::data post_data;
@@ -111,7 +111,7 @@ string render_post(const string& path, const string& alert_msg, const comments::
 	
 	if(config::comments_enabled){
 		post_data.set("comments_enabled", true);
-		post_data.set("comment_token", comments::gen_token(path, com.author_ip, coms.size()));
+		post_data.set("comment_token", comments::gen_token(path, req_ip, coms.size()));
 	}
 	
 	post_data.set("content", md::render_md_to_html(file_contents));

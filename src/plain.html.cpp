@@ -112,16 +112,17 @@ const char* plain_html_tmpl = R"(
 				
 				{{#comments_enabled}}
 				<br/>
-				<form method="POST" action="{{page_url}}/post_comment">
+				<form method="POST" action="{{page_url}}">
 					<input type="hidden" name="token" value="{{comment_token}}" />
 					<input type="text" name="author" class="form-control col-md-4" placeholder="author" value="{{{comment_author}}}" />
-					<textarea name="comment" cols="45" rows="2" maxlength="256" required="required" class="form-control" placeholder="message">{{{comment_msg}}}</textarea>
+					<textarea name="comment" cols="45" rows="2" maxlength="256" required="required"
+					 class="form-control" placeholder="message" autocomplete="off">{{{comment_msg}}}</textarea>
 					<br/>
 					<span class="input-group-text col-md-4">
 						<img src="/captcha/{{comment_token}}"/>
 					</span>
 					
-					<input type="text" name="captcha" class="form-control col-md-4"/><br/>
+					<input type="text" name="captcha" class="form-control col-md-4" autocomplete="off"/><br/>
 					<input type="submit" value="submit" class="btn btn-dark"/>
 				</form>
 				{{/comments_enabled}}

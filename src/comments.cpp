@@ -50,7 +50,7 @@ token deserialize_token(const std::string& tok_str){
 }
 
 std::string gen_token(const string& post_path, const string& ip, std::size_t num_comments){
-	token tok;
+	token tok{};
 	int num_letters = 26;
 	srand((unsigned) time(NULL) * getpid());
 	
@@ -61,7 +61,9 @@ std::string gen_token(const string& post_path, const string& ip, std::size_t num
 	tok.captcha_answer[5] = 0;
 
 	//ip
-	sscanf(ip.c_str(), "%hhu.%hhu.%hhu.%hhu", &tok.ip[0], &tok.ip[1], &tok.ip[2], &tok.ip[3]);
+	if(!ip.empty()) {
+		sscanf(ip.c_str(), "%hhu.%hhu.%hhu.%hhu", &tok.ip[0], &tok.ip[1], &tok.ip[2], &tok.ip[3]);
+	}
 
 	//post path hash & num comments
 	tok.post_id_hash = hash<string>{}(post_path);
@@ -95,6 +97,10 @@ bool captcha_answers_match(char c1[CAPTCHA_LEN], char c2[CAPTCHA_LEN]){
 		c1[5] == c2[5];
 }
 
+size_t diff(size_t a, size_t b){
+	return a >= b ? a - b : b - a;
+}
+
 bool validate_captcha(const string& post_path, const string& token_str, const string& user_input, const std::string& ip){
 	//todo: test
 	unsigned char request_ip[4];
@@ -103,10 +109,14 @@ bool validate_captcha(const string& post_path, const string& token_str, const st
 	sscanf(ip.c_str(), "%hhu.%hhu.%hhu.%hhu", &request_ip[0], &request_ip[1], &request_ip[2], &request_ip[3]);
 	token tok = deserialize_token(token_str);
 	translate_letter_ids((unsigned char*)&tok.captcha_answer[0]);//translate letters ids to actual letters
-	return captcha_answers_match(tok.captcha_answer, user_input_cstr) &&
+	bool test = captcha_answers_match(tok.captcha_answer, user_input_cstr);
+	test = ips_match(tok.ip, request_ip);
+	test = tok.post_id_hash == std::hash<string>{}(post_path);
+	test = diff(get_comments(post_path).size(), tok.num_comments) < MAX_COMMENTS_COUNT_DIFF;
+	return test && captcha_answers_match(tok.captcha_answer, user_input_cstr) &&
 		ips_match(tok.ip, request_ip) &&
 		tok.post_id_hash == std::hash<string>{}(post_path) &&
-		get_comments(post_path).size()-tok.num_comments < MAX_COMMENTS_COUNT_DIFF;
+		diff(get_comments(post_path).size(), tok.num_comments) < MAX_COMMENTS_COUNT_DIFF;
 }
 
 err::errors post_comment(const string& post_path, const comments::comment& comment, const string& token, const string& captcha_answer){
@@ -182,7 +192,7 @@ void test_serialization(){
 	t.num_comments = 254;
 	string raw = serialize_token(t);
 	token out = deserialize_token(raw);
-	printf("token.captcha_answer = %c%c%c%c, token.ip = %hhu.%hhu.%hhu.%hhu, token.post_id_hash = %llu, token.num_comments = %llu\n", 
+	fmt::print("token.captcha_answer = {}{}{}{}, token.ip = {}.{}.{}.{}, token.post_id_hash = {}, token.num_comments = {}\n", 
 		out.captcha_answer[0], out.captcha_answer[1], out.captcha_answer[2], out.captcha_answer[3],
 		out.ip[0], out.ip[1], out.ip[2], out.ip[3],
 		out.post_id_hash,

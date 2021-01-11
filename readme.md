@@ -37,7 +37,7 @@ plebspot serve
 - [x] init command 
 - [x] post categories/pages hierarchy
 - [x] captcha
-- [ ] comments
+- [x] comments
 - [ ] rss feeds
 - [ ] generate sitemap xml
 - [ ] logging

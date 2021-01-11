@@ -53,15 +53,15 @@ void serve(){
 
 	svr.Get(R"(/(pages/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+\.md))", [&](const Request& req, Response& res) {
 		auto page_path = req.matches[1];
-		res.set_content(render::render_post(page_path.str()), "text/html");
+		res.set_content(render::render_post(page_path.str(), req.remote_addr), "text/html");
 	});
 
 	svr.Get(R"(/(posts/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+\.md))", [&](const Request& req, Response& res) {
 		auto post_path = req.matches[1];
-		res.set_content(render::render_post(post_path.str()), "text/html");
+		res.set_content(render::render_post(post_path.str(), req.remote_addr), "text/html");
 	});
 
-	svr.Post(R"(/(posts/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+\.md)/post_comment)", [&](const Request& req, Response& res) {
+	svr.Post(R"(/(posts/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+\.md))", [&](const Request& req, Response& res) {
 		auto post_path = req.matches[1];
 
 		comments::comment com = {
@@ -75,10 +75,10 @@ void serve(){
 			post_path.str(), com, req.get_param_value("token"), req.get_param_value("captcha"));
 
 		if(err_code == errors::success) {
-			res.set_content(render::render_post(post_path.str()), "text/html");
+			res.set_content(render::render_post(post_path.str(), req.remote_addr), "text/html");
 		} else {
 			res.set_content(
-				render::render_post(post_path.str(), err::to_string(err_code), com),
+				render::render_post(post_path.str(), req.remote_addr, err::to_string(err_code), com),
 				"text/html"
 				);
 		}
