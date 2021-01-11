@@ -5,6 +5,7 @@ namespace err {
 
 enum class errors {
 	success,
+	comments_disabled,
 	comment_post_not_exist,
 	comment_message_not_provided,
 	comment_author_not_provided,
@@ -15,9 +16,12 @@ enum class errors {
 };
 
 inline std::string to_string(errors e){
+	//todo: enhance this
 	switch(e) {
 		case errors::success:
 			return "success";
+		case errors::comments_disabled:
+			return "comments are disabled";
 		case errors::comment_post_not_exist:
 			return "post does not exist";
 		case errors::comment_message_not_provided:

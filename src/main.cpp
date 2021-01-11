@@ -39,7 +39,8 @@ void init(){
 			"blog_desc:  " << config::blog_desc << "\n"
 			"blog_keywords:  " << config::blog_keywords << "\n"
 			"http_port:  " << config::http_port << "\n"
-			"html_tmpl:  " << config::html_tmpl << "\n";
+			"html_tmpl:  " << config::html_tmpl << "\n"
+			"comments_enabled:  " << (config::comments_enabled ? "true" : "false") << "\n";
 	}
 }
 

@@ -1,5 +1,6 @@
 #include "comments.h"
 #include "util.h"
+#include "config.h"
 
 #include <cstdio>
 #include <fstream>
@@ -108,9 +109,11 @@ bool validate_captcha(const string& post_path, const string& token_str, const st
 }
 
 err::errors post_comment(const string& post_path, const comments::comment& comment, const string& token, const string& captcha_answer){
-//todo: assert comments are enabled in configuration
 //todo: store comment author and date
-	std::error_code err_code;
+	if(!config::comments_enabled){
+		return err::errors::comments_disabled;
+	}
+
 	if(!filesystem::exists(post_path)){
 		return err::errors::comment_post_not_exist;
 	}

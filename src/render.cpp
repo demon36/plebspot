@@ -106,14 +106,15 @@ string render_post(const string& path, const string& alert_msg, const comments::
 		post_data.set("keywords", doc.keywords);
 	}
 
-	bool comments_enabled = false;
 	vector<comments::comment> coms = comments::get_comments(path);
-	if(comments_enabled){
+	fill_comments(post_data, coms);
+	
+	if(config::comments_enabled){
 		post_data.set("comments_enabled", true);
-		fill_comments(post_data, coms);
+		post_data.set("comment_token", comments::gen_token(path, com.author_ip, coms.size()));
 	}
+	
 	post_data.set("content", md::render_md_to_html(file_contents));
-	post_data.set("comment_token", comments::gen_token(path, com.author_ip, coms.size()));
 	if(!alert_msg.empty()){
         post_data.set("alert_msg", alert_msg);
         post_data.set("comment_msg", com.message);
