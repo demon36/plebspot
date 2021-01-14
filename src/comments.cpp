@@ -170,10 +170,13 @@ vector<comment> get_comments(const string& post_path){
 	string comments_file_path = post_path + COMMENTS_FILE_SUFFIX;
 	ifstream comments_file(comments_file_path, std::ios::in);
 	for( std::string line; getline( comments_file, line ); ) {
+		if(util::trim(line).empty()){
+			continue;
+		}
 		string author = line.substr(0, line.find(COMMENT_PARTS_DELIMITER));
 		string date = line.substr(author.size() + 1, line.find(COMMENT_PARTS_DELIMITER, author.size() + 1) - author.size() - 1);
 		string msg = line.substr(author.size() + date.size() + 2, -1);
-		comments.emplace_back(comment{author, date, msg});
+		comments.emplace_back(comment{util::trim(author), util::trim(date), util::trim(msg)});
 	}
 	return comments;
 }
