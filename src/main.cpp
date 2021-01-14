@@ -53,7 +53,7 @@ void serve(){
 
 	svr.Get(R"(/(pages/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+\.md))", [&](const Request& req, Response& res) {
 		auto page_path = req.matches[1];
-		res.set_content(render::render_post(page_path.str(), req.remote_addr), "text/html");
+		res.set_content(render::render_page(page_path.str()), "text/html");
 	});
 
 	svr.Get(R"(/(posts/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+\.md))", [&](const Request& req, Response& res) {

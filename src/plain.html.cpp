@@ -97,9 +97,11 @@ const char* plain_html_tmpl = R"(
 
 				{{{content}}}
 
+				{{#comments_enabled}}
 				<br/><br/><br/><br/><h5>comments:</h5>
-				{{#comments_list}}
+				
 				<div class="list-group">
+				{{#comments_list}}
 					<div class="list-group-item list-group-item-action" aria-current="true">
 						<p class="mb-1">{{{message}}}</p>
 						<div class="d-flex w-100 justify-content-between">
@@ -107,10 +109,9 @@ const char* plain_html_tmpl = R"(
 							<small>{{date}}</small>
 						</div>
 					</div>
-				</div>
 				{{/comments_list}}
+				</div>
 				
-				{{#comments_enabled}}
 				<br/>
 				<form method="POST" action="{{page_url}}">
 					<input type="hidden" name="token" value="{{comment_token}}" />

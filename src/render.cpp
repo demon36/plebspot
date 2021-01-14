@@ -86,25 +86,28 @@ std::string render_home_page(){
 	return ss.str();
 }
 
+void fill_document_data(mustache::data& page_data, const string& path){//fill with data extracted from the markdown file
+	md::md_doc doc = md::make_md_doc(path);
+
+	page_data.set("page_desc", doc.title);//title cannot be empty, default value is filename
+	page_data.set("page_url", doc.url);
+	if(!doc.author.empty())		page_data.set("author", doc.author);
+	if(!doc.date.empty())		page_data.set("date", doc.date);
+	if(!doc.category.empty())	page_data.set("category", doc.category);
+	if(doc.keywords.empty()){
+		page_data.set("keywords", config::blog_keywords);
+	} else {
+		page_data.set("keywords", doc.keywords);
+	}
+
+}
+
 string render_post(const string& path, const string& req_ip, const string& alert_msg, const comments::comment& com){
 	stringstream ss;
 	mustache::mustache post_tmpl = get_template();
 	mustache::data post_data;
 	fill_generic_date(post_data);
-
-	md::md_doc doc = md::make_md_doc(path);
-	string file_contents = util::get_file_contents(path.c_str());
-
-	post_data.set("page_desc", doc.title);//title cannot be empty, default value is filename
-	post_data.set("page_url", doc.url);
-	if(!doc.author.empty())		post_data.set("author", doc.author);
-	if(!doc.date.empty())		post_data.set("date", doc.date);
-	if(!doc.category.empty())	post_data.set("category", doc.category);
-	if(doc.keywords.empty()){
-		post_data.set("keywords", config::blog_keywords);
-	} else {
-		post_data.set("keywords", doc.keywords);
-	}
+	fill_document_data(post_data, path);
 
 	vector<comments::comment> coms = comments::get_comments(path);
 	fill_comments(post_data, coms);
@@ -114,12 +117,25 @@ string render_post(const string& path, const string& req_ip, const string& alert
 		post_data.set("comment_token", comments::gen_token(path, req_ip, coms.size()));
 	}
 	
+	string file_contents = util::get_file_contents(path.c_str());
 	post_data.set("content", md::render_md_to_html(file_contents));
 	if(!alert_msg.empty()){
 		post_data.set("alert_msg", alert_msg);
 		post_data.set("comment_msg", com.message);
 		post_data.set("comment_author", com.author);
 	}
+	post_tmpl.render(post_data, ss);
+	return ss.str();
+}
+
+string render_page(const string& path){
+	stringstream ss;
+	mustache::mustache post_tmpl = get_template();
+	mustache::data post_data;
+	fill_generic_date(post_data);
+	fill_document_data(post_data, path);
+	string file_contents = util::get_file_contents(path.c_str());
+	post_data.set("content", md::render_md_to_html(file_contents));
 	post_tmpl.render(post_data, ss);
 	return ss.str();
 }
