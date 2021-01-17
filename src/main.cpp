@@ -6,6 +6,7 @@
 #include <sstream>
 
 #include "md.h"
+#include "rss.png.h"
 #include "render.h"
 #include "config.h"
 #include "captcha.h"
@@ -30,6 +31,11 @@ void init(){
 		ofstream plain_tmpl(plain_tmpl_path);
 		plain_tmpl << plain_html_tmpl;
 	}
+
+	ofstream rss_png_stream(STATIC_DIR "/rss.png", ofstream::binary);
+	rss_png_stream.write((const char*)res_rss_png, res_rss_png_len);
+	rss_png_stream.close();
+
 	ofstream sample_post_stream(POSTS_DIR "/my_category/sample_post.md");
 	sample_post_stream << sample_post_md;
 	if(!filesystem::exists(CONFIG_FILE)){

@@ -38,7 +38,7 @@ plebspot serve
 - [x] post categories/pages hierarchy
 - [x] captcha
 - [x] comments
-- [ ] rss feeds
+- [x] rss feeds
 - [ ] generate sitemap xml
 - [ ] logging
 - [ ] server side syntax highlighting (use enscript or src-highlite)

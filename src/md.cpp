@@ -195,7 +195,7 @@ string gen_rss(){
 	auto rss_node = doc.append_child("rss");
 	rss_node.append_attribute("version") = "2.0";
 
-	auto channel_node = doc.append_child("channel");
+	auto channel_node = rss_node.append_child("channel");
 	channel_node.append_child("title").append_child(pugi::node_pcdata).set_value(config::blog_title.c_str());
 	channel_node.append_child("link").append_child(pugi::node_pcdata).set_value("/rss.xml");
 	channel_node.append_child("description").append_child(pugi::node_pcdata).set_value(config::blog_desc.c_str());
@@ -207,7 +207,7 @@ string gen_rss(){
 	//todo: sort by date ?
 	for(const auto& it : posts){
 		for(const md_doc& md : it.second){
-			auto post_node = doc.append_child("item");
+			auto post_node = channel_node.append_child("item");
 			post_node.append_child("title").append_child(pugi::node_pcdata).set_value(md.title.c_str());
 			post_node.append_child("author").append_child(pugi::node_pcdata).set_value(md.author.c_str());
 			post_node.append_child("link").append_child(pugi::node_pcdata).set_value(md.url.c_str());

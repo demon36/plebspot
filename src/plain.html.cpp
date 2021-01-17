@@ -52,7 +52,10 @@ const char* plain_html_tmpl = R"(
 
 				</ul>
 
-				<h4>Posts</h4>
+				<h4>
+					Posts
+					<a href="/rss.xml"><img src="/static/rss.png" /></a>
+				</h4>
 				<ul>
 					{{#posts_list}}
 					<li>
