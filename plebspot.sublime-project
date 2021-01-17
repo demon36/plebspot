@@ -18,7 +18,8 @@
 			"-I./thirdparty/cpp-httplib",
 			"-I./thirdparty/fmt/include",
 			"-I./thirdparty/hoedown/src",
-			"-I./thirdparty/Mustache"
+			"-I./thirdparty/Mustache",
+			"-I./thirdparty/pugixml/src"
 		],
 		"ecc_lang_flags": {
 			"C": ["-std=c17"],

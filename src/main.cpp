@@ -110,6 +110,11 @@ void serve(){
 		}
 	});
 
+	svr.Get("/rss.xml", [&](const Request& req, Response& res) {
+	    res.set_content(md::gen_rss(), "application/rss+xml");
+		return res.status = 200;
+	});
+
 	const char* ip = "0.0.0.0";
 	fmt::print("plebspot is listening on {}:{}\n", ip, config::http_port);
 	svr.listen(ip, config::http_port);

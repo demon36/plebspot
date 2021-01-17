@@ -16,9 +16,10 @@ PROJECT_NAME := $(shell basename $(CURDIR))
 MAJOR_VERSION := 0
 MINOR_VERSION := 1.9
 
-DEP_SRC_FILES := ./thirdparty/cpp-base64/base64.cpp
-DEP_SRC_DIRS := ./thirdparty/fmt/src ./thirdparty/captcha/src
-DEP_CFLAGS := -I./thirdparty/cpp-httplib -I./thirdparty/fmt/include -I./thirdparty/hoedown/src -I./thirdparty/Mustache -I./thirdparty/captcha/include -I./thirdparty/plusaes/include -I./thirdparty/cpp-base64
+DEP_SRC_FILES := thirdparty/cpp-base64/base64.cpp
+DEP_SRC_DIRS := thirdparty/fmt/src thirdparty/captcha/src thirdparty/pugixml/src
+DEP_CFLAGS := -Ithirdparty/cpp-httplib -Ithirdparty/fmt/include -Ithirdparty/hoedown/src -Ithirdparty/Mustache \
+	-Ithirdparty/captcha/include -Ithirdparty/plusaes/include -Ithirdparty/cpp-base64 -Ithirdparty/pugixml/src
 
 SRC_FILES := $(shell test -d $(SRC_DIR) && find $(SRC_DIR) $(DEP_SRC_DIRS)  -regex '.*\.\(c\|cc\|cpp\|cxx\)') $(DEP_SRC_FILES)
 TEST_SRC_FILES := $(shell test -d $(TEST_SRC_DIR) && find $(TEST_SRC_DIR) -regex '.*\.\(c\|cc\|cpp\|cxx\)')

@@ -10,6 +10,8 @@
 #include "html.h"
 #include "document.h"
 
+#include <pugixml.hpp>
+
 /*
 md comments syntax
 [//]: # (comment here)
@@ -64,6 +66,11 @@ md_doc make_md_doc(filesystem::path p){
 		.url = "/" + p.string(),
 		.category = parent_cat,
 	};
+
+#ifdef _WIN32
+	util::replace_all(doc.url, "\\", "/");
+#endif
+
 	std::ifstream file_stream(p.string());
 	for(string line; getline(file_stream, line);){
 		//get metadata in form [title: my custom post title]::
@@ -153,6 +160,69 @@ string render_md_to_html(const string& md_str){
 	string contentString((const char*)ob->data, ob->size);
 	hoedown_buffer_free(ob);
 	return contentString;
+}
+
+/* example:
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+<channel>
+ <title>RSS Title</title>
+ <description>This is an example of an RSS feed</description>
+ <link>http://www.example.com/main.html</link>
+ <copyright>2020 Example.com All rights reserved</copyright>
+ <lastBuildDate>Mon, 06 Sep 2010 00:01:00 +0000 </lastBuildDate>
+ <pubDate>Sun, 06 Sep 2009 16:20:00 +0000</pubDate>
+ <ttl>1800</ttl>
+
+ <item>
+  <title>Example entry</title>
+  <description>Here is some text containing an interesting description.</description>
+  <link>http://www.example.com/blog/post/1</link>
+  <guid isPermaLink="false">7bd204c6-1655-4c27-aeee-53f933c5395f</guid>
+  <pubDate>Sun, 06 Sep 2009 16:20:00 +0000</pubDate>
+ </item>
+
+</channel>
+</rss>
+*/
+string gen_rss(){
+	pugi::xml_document doc;
+	auto declaration_node = doc.append_child(pugi::node_declaration);
+	declaration_node.append_attribute("version") = "1.0";
+	declaration_node.append_attribute("encoding") = "utf-8";
+	declaration_node.append_attribute("standalone") = "yes";
+
+	auto rss_node = doc.append_child("rss");
+	rss_node.append_attribute("version") = "2.0";
+
+	auto channel_node = doc.append_child("channel");
+	channel_node.append_child("title").append_child(pugi::node_pcdata).set_value(config::blog_title.c_str());
+	channel_node.append_child("link").append_child(pugi::node_pcdata).set_value("/rss.xml");
+	channel_node.append_child("description").append_child(pugi::node_pcdata).set_value(config::blog_desc.c_str());
+	channel_node.append_child("generator").append_child(pugi::node_pcdata).set_value("plebspot - pugixml");
+	channel_node.append_child("lastBuildDate").append_child(pugi::node_pcdata).set_value(util::get_current_time().c_str());
+	channel_node.append_child("generator").append_child(pugi::node_pcdata).set_value("plebspot - pugixml");
+
+	map<string, vector<md_doc>> posts = get_md_docs(doc_type::post);
+	//todo: sort by date ?
+	for(const auto& it : posts){
+		for(const md_doc& md : it.second){
+			auto post_node = doc.append_child("item");
+			post_node.append_child("title").append_child(pugi::node_pcdata).set_value(md.title.c_str());
+			post_node.append_child("author").append_child(pugi::node_pcdata).set_value(md.author.c_str());
+			post_node.append_child("link").append_child(pugi::node_pcdata).set_value(md.url.c_str());
+			post_node.append_child("guid").append_child(pugi::node_pcdata).set_value(md.url.c_str());
+			post_node.append_child("pubDate").append_child(pugi::node_pcdata).set_value(md.date.c_str());
+			post_node.append_child("keywords").append_child(pugi::node_pcdata).set_value(md.keywords.c_str());
+			post_node.append_child("category").append_child(pugi::node_pcdata).set_value(md.category.c_str());
+			string post_html = md::render_md_to_html(util::get_file_contents(md.url.substr(1, -1)));//remove preceding separator
+			post_node.append_child("description").append_child(pugi::node_pcdata).set_value(post_html.c_str());
+		}
+	}
+
+	stringstream ss;
+	doc.save(ss, "\t");
+	return ss.str();
 }
 
 }
