@@ -225,4 +225,44 @@ string gen_rss(){
 	return ss.str();
 }
 
+/* example:
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+	<url>
+		<loc>http://www.example.com/foo.html</loc>
+		<lastmod>2018-06-04</lastmod>
+	</url>
+</urlset> 
+*/
+string gen_sitemap(const string& host){
+	pugi::xml_document doc;
+	auto declaration_node = doc.append_child(pugi::node_declaration);
+	declaration_node.append_attribute("version") = "1.0";
+	declaration_node.append_attribute("encoding") = "utf-8";
+
+	auto urlset_node = doc.append_child("urlset");
+	urlset_node.append_attribute("xmlns") = "http://www.sitemaps.org/schemas/sitemap/0.9";
+
+	map<string, vector<md_doc>> posts = get_md_docs(doc_type::post);
+	map<string, vector<md_doc>> pages = get_md_docs(doc_type::page);
+	posts.insert(pages.begin(), pages.end());
+	//todo: sort by date ?
+	for(const auto& it : posts){
+		for(const md_doc& md : it.second){
+			auto url_node = urlset_node.append_child("url");
+			if(host.empty()){
+				url_node.append_child("loc").append_child(pugi::node_pcdata).set_value(md.url.c_str());
+			} else {
+				string absolute_url = fmt::format("http://{}{}", host, md.url);
+				url_node.append_child("loc").append_child(pugi::node_pcdata).set_value(absolute_url.c_str());
+			}
+			url_node.append_child("lastmod").append_child(pugi::node_pcdata).set_value(md.date.c_str());
+		}
+	}
+
+	stringstream ss;
+	doc.save(ss, "\t");
+	return ss.str();
+}
+
 }

@@ -117,9 +117,41 @@ void serve(){
 	});
 
 	svr.Get("/rss.xml", [&](const Request& req, Response& res) {
-	    res.set_content(md::gen_rss(), "application/rss+xml");
+		res.set_content(md::gen_rss(), "application/rss+xml");
 		return res.status = 200;
 	});
+
+	svr.Get("/sitemap.xml", [&](const Request& req, Response& res) {
+		string host;
+		if(req.headers.find("Host") != req.headers.end()){
+			host = req.headers.find("Host")->second;
+		}
+
+		res.set_content(md::gen_sitemap(host), "text/xml");
+		return res.status = 200;
+	});
+
+	svr.Get("/robots.txt", [&](const Request& req, Response& res) {
+		string host;
+		if(req.headers.find("Host") != req.headers.end()){
+			host = req.headers.find("Host")->second;
+		}
+
+		string content = "User-agent: *\nAllow: /\n\n";
+		if(!host.empty()){
+			content += "Sitemap: http://" + host + "/sitemap.xml";
+		}
+		res.set_content(content, "text/plain");
+		return res.status = 200;
+	});
+
+	/*
+User-agent: *
+Allow: /
+
+Sitemap: http://www.example.com/sitemap.xml
+
+	*/
 
 	const char* ip = "0.0.0.0";
 	fmt::print("plebspot is listening on {}:{}\n", ip, config::http_port);

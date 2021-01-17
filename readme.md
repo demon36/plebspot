@@ -39,9 +39,12 @@ plebspot serve
 - [x] captcha
 - [x] comments
 - [x] rss feeds
-- [ ] generate sitemap xml
-- [ ] logging
+- [x] sitemap xml
+- [ ] ssl
+
+#### luxury features
+- [ ] compressed cache for rendered html
+- [ ] visitor statistics
 - [ ] server side syntax highlighting (use enscript or src-highlite)
-- [ ] compressed html cache
 - [ ] github style task list
-- [ ] add command restart
+- [ ] `plebspot restart` command
