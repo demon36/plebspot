@@ -117,7 +117,12 @@ void serve(){
 	});
 
 	svr.Get("/rss.xml", [&](const Request& req, Response& res) {
-		res.set_content(md::gen_rss(), "application/rss+xml");
+		string host;
+		if(req.headers.find("Host") != req.headers.end()){
+			host = req.headers.find("Host")->second;
+		}
+		
+		res.set_content(md::gen_rss(host), "application/rss+xml");
 		return res.status = 200;
 	});
 

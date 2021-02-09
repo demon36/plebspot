@@ -78,8 +78,16 @@ string get_current_time(){
 	char buffer[80];
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
-	strftime(buffer, sizeof(buffer), "%d-%m-%Y %H:%M:%S", timeinfo);
+	strftime(buffer, sizeof(buffer), "%a, %d %b %Y %T %z", timeinfo);
 	return string(buffer);
+}
+
+string to_absolute_url(const string& host, const string& path, bool https){
+	if(host.empty()){
+		return path;//not much we can do
+	}else{
+		return fmt::format(https ? "http://{}{}" : "http://{}{}", host, path);
+	}
 }
 
 }

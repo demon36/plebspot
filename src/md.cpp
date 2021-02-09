@@ -185,7 +185,7 @@ string render_md_to_html(const string& md_str){
 </channel>
 </rss>
 */
-string gen_rss(){
+string gen_rss(const string& host){
 	pugi::xml_document doc;
 	auto declaration_node = doc.append_child(pugi::node_declaration);
 	declaration_node.append_attribute("version") = "1.0";
@@ -197,11 +197,10 @@ string gen_rss(){
 
 	auto channel_node = rss_node.append_child("channel");
 	channel_node.append_child("title").append_child(pugi::node_pcdata).set_value(config::blog_title.c_str());
-	channel_node.append_child("link").append_child(pugi::node_pcdata).set_value("/rss.xml");
+	channel_node.append_child("link").append_child(pugi::node_pcdata).set_value(util::to_absolute_url(host, "/rss.xml").c_str());
 	channel_node.append_child("description").append_child(pugi::node_pcdata).set_value(config::blog_desc.c_str());
 	channel_node.append_child("generator").append_child(pugi::node_pcdata).set_value("plebspot - pugixml");
 	channel_node.append_child("lastBuildDate").append_child(pugi::node_pcdata).set_value(util::get_current_time().c_str());
-	channel_node.append_child("generator").append_child(pugi::node_pcdata).set_value("plebspot - pugixml");
 
 	map<string, vector<md_doc>> posts = get_md_docs(doc_type::post);
 	//todo: sort by date ?
@@ -209,11 +208,11 @@ string gen_rss(){
 		for(const md_doc& md : it.second){
 			auto post_node = channel_node.append_child("item");
 			post_node.append_child("title").append_child(pugi::node_pcdata).set_value(md.title.c_str());
+			//todo: add author email to configuration
 			post_node.append_child("author").append_child(pugi::node_pcdata).set_value(md.author.c_str());
-			post_node.append_child("link").append_child(pugi::node_pcdata).set_value(md.url.c_str());
-			post_node.append_child("guid").append_child(pugi::node_pcdata).set_value(md.url.c_str());
+			post_node.append_child("link").append_child(pugi::node_pcdata).set_value(util::to_absolute_url(host, md.url).c_str());
+			post_node.append_child("guid").append_child(pugi::node_pcdata).set_value(util::to_absolute_url(host, md.url).c_str());
 			post_node.append_child("pubDate").append_child(pugi::node_pcdata).set_value(md.date.c_str());
-			post_node.append_child("keywords").append_child(pugi::node_pcdata).set_value(md.keywords.c_str());
 			post_node.append_child("category").append_child(pugi::node_pcdata).set_value(md.category.c_str());
 			string post_html = md::render_md_to_html(util::get_file_contents(md.url.substr(1, -1)));//remove preceding separator
 			post_node.append_child("description").append_child(pugi::node_pcdata).set_value(post_html.c_str());
@@ -250,12 +249,8 @@ string gen_sitemap(const string& host){
 	for(const auto& it : posts){
 		for(const md_doc& md : it.second){
 			auto url_node = urlset_node.append_child("url");
-			if(host.empty()){
-				url_node.append_child("loc").append_child(pugi::node_pcdata).set_value(md.url.c_str());
-			} else {
-				string absolute_url = fmt::format("http://{}{}", host, md.url);
-				url_node.append_child("loc").append_child(pugi::node_pcdata).set_value(absolute_url.c_str());
-			}
+			string absolute_url = util::to_absolute_url(host, md.url, false);
+			url_node.append_child("loc").append_child(pugi::node_pcdata).set_value(absolute_url.c_str());
 			url_node.append_child("lastmod").append_child(pugi::node_pcdata).set_value(md.date.c_str());
 		}
 	}
