@@ -12,6 +12,8 @@ std::map<std::string, std::string> parse_pairs(const std::string& kv_pairs);
 void replace_all(std::string& str, const std::string& from, const std::string& to);
 std::string get_current_time();
 std::string to_absolute_url(const std::string& host, const std::string& path, bool https = true);
+::tm parse_date_rfc822(const std::string& str);
+std::string format_date_w3c(const ::tm& time);
 
 }
 

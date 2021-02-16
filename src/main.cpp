@@ -13,6 +13,8 @@
 #include "util.h"
 #include "comments.h"
 
+#define VERSION "0.9.8"
+
 using namespace std;
 using namespace httplib;
 using namespace err;
@@ -132,7 +134,7 @@ void serve(){
 			host = req.headers.find("Host")->second;
 		}
 
-		res.set_content(md::gen_sitemap(host), "text/xml");
+		res.set_content(md::gen_sitemap(host), "application/xml");
 		return res.status = 200;
 	});
 
@@ -179,6 +181,8 @@ int main(int argc, char const *argv[])
 		serve();
 	} else if(argc == 2 && strcmp(argv[1], "test") == 0){
 		comments::test();
+	} else if(argc == 2 && strcmp(argv[1], "--version") == 0){
+		fmt::print("{}\n", VERSION);
 	} else {
 		help();
 	}

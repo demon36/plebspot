@@ -3,6 +3,9 @@
 #include <ctime>
 #include <fmt/core.h>
 #include <fstream>
+#include <sstream>
+#include <iomanip>
+#include <ctime>
 
 using namespace std;
 
@@ -78,7 +81,7 @@ string get_current_time(){
 	char buffer[80];
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
-	strftime(buffer, sizeof(buffer), "%a, %d %b %Y %T %z", timeinfo);
+	strftime(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S %z", timeinfo);
 	return string(buffer);
 }
 
@@ -89,5 +92,28 @@ string to_absolute_url(const string& host, const string& path, bool https){
 		return fmt::format(https ? "http://{}{}" : "http://{}{}", host, path);
 	}
 }
+
+::tm parse_date_rfc822(const string& str){
+    ::tm tm = {};
+    stringstream ss(str);
+    ss >> get_time(&tm, "%d %b %Y %H:%M:%S %z");
+    if(ss.fail()){//try to parse timeless string
+		fmt::print("failed to parse date '{}'\n", str.c_str());
+        ss >> get_time(&tm, "%d %b %Y");
+		if(ss.fail()){
+			fmt::print("failed to parse date again '{}'\n", str.c_str());
+		}
+    }
+    return tm;
+}
+
+string format_date_w3c(const ::tm& time){
+    string buf;
+    buf.reserve(11);
+	
+    strftime((char*)buf.c_str(), 11, "%Y-%m-%d", &time);
+    return buf;
+}
+
 
 }
