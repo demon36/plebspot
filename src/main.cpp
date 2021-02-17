@@ -61,12 +61,22 @@ void serve(){
 
 	svr.Get(R"(/(pages/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+\.md))", [&](const Request& req, Response& res) {
 		auto page_path = req.matches[1];
-		res.set_content(render::render_page(page_path.str()), "text/html");
+		if(filesystem::exists(page_path.str())){
+			res.set_content(render::render_page(page_path.str()), "text/html");
+			return res.status = 200;
+		} else {
+			return res.status = 404;
+		}
 	});
 
 	svr.Get(R"(/(posts/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+\.md))", [&](const Request& req, Response& res) {
 		auto post_path = req.matches[1];
-		res.set_content(render::render_post(post_path.str(), req.remote_addr), "text/html");
+		if(filesystem::exists(post_path.str())){
+			res.set_content(render::render_post(post_path.str(), req.remote_addr), "text/html");
+			return res.status = 200;
+		} else {
+			return res.status = 404;
+		}
 	});
 
 	svr.Post(R"(/(posts/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+\.md))", [&](const Request& req, Response& res) {
@@ -98,7 +108,6 @@ void serve(){
 
 	svr.Get(R"(/(static/[a-zA-Z0-9_\-\.]+))", [&](const Request& req, Response& res) {
 		string target_path = req.matches[1].str();
-		fmt::print("requesting static uri {}\n", target_path);
 		if(filesystem::exists(target_path)){
 			res.set_content(util::get_file_contents(target_path.c_str()), "");
 			return res.status = 200;
