@@ -251,7 +251,12 @@ string gen_sitemap(const string& host){
 			auto url_node = urlset_node.append_child("url");
 			string absolute_url = util::to_absolute_url(host, md.url, false);
 			url_node.append_child("loc").append_child(pugi::node_pcdata).set_value(absolute_url.c_str());
-			string w3c_date = util::format_date_w3c(util::parse_date_rfc822(md.date));
+			string w3c_date;
+			if(md.date.empty()){
+				w3c_date = util::format_date_w3c(util::get_last_write_time(md.url.substr(1)));
+			}else{
+				w3c_date = util::format_date_w3c(util::parse_date_rfc822(md.date));
+			}
 			url_node.append_child("lastmod").append_child(pugi::node_pcdata).set_value(w3c_date.c_str());
 		}
 	}

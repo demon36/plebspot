@@ -13,6 +13,7 @@ void replace_all(std::string& str, const std::string& from, const std::string& t
 std::string get_current_time();
 std::string to_absolute_url(const std::string& host, const std::string& path, bool https = true);
 ::tm parse_date_rfc822(const std::string& str);
+::tm get_last_write_time(const std::string& path);
 std::string format_date_w3c(const ::tm& time);
 
 }

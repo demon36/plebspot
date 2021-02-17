@@ -6,6 +6,14 @@
 #include <sstream>
 #include <iomanip>
 #include <ctime>
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#ifdef WIN32
+#define stat _stat
+#else
+#include <unistd.h>
+#endif
 
 using namespace std;
 
@@ -89,7 +97,16 @@ string to_absolute_url(const string& host, const string& path, bool https){
 	if(host.empty()){
 		return path;//not much we can do
 	}else{
-		return fmt::format(https ? "http://{}{}" : "http://{}{}", host, path);
+		return fmt::format(https ? "https://{}{}" : "http://{}{}", host, path);
+	}
+}
+
+::tm get_last_write_time(const std::string& path){
+	struct stat result;
+	if(stat(path.c_str(), &result) == 0){
+		return *std::localtime(&result.st_mtime);
+	} else {
+		return ::tm{};
 	}
 }
 
@@ -98,19 +115,18 @@ string to_absolute_url(const string& host, const string& path, bool https){
     stringstream ss(str);
     ss >> get_time(&tm, "%d %b %Y %H:%M:%S %z");
     if(ss.fail()){//try to parse timeless string
-		fmt::print("failed to parse date '{}'\n", str.c_str());
         ss >> get_time(&tm, "%d %b %Y");
 		if(ss.fail()){
-			fmt::print("failed to parse date again '{}'\n", str.c_str());
+			time_t rawtime;
+			time(&rawtime);
+			return *localtime(&rawtime);
 		}
     }
     return tm;
 }
 
 string format_date_w3c(const ::tm& time){
-    string buf;
-    buf.reserve(11);
-	
+    string buf(11, (char)0);
     strftime((char*)buf.c_str(), 11, "%Y-%m-%d", &time);
     return buf;
 }
