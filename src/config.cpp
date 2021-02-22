@@ -18,10 +18,7 @@ bool comments_enabled = true;
 
 util::error load(){
 	outcome<string> file_contents = util::get_file_contents(CONFIG_FILE);
-	if(!file_contents.is_success()){
-		return file_contents.get_error();
-	}
-	
+	OUTCOME_ERR_CHECK(file_contents);
 	map<string, string> config_items = util::parse_pairs(file_contents.get_result());
 
 	//todo: enhance this

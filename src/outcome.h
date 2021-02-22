@@ -15,11 +15,11 @@ public:
 	{
 	}
 
-	outcome(const R& r) : result(r), success(true)
-	{
-	}
-
 	outcome(const error& e) : error(e), success(false)
+	{
+	} 
+
+	outcome(const R& r) : result(r), success(true)
 	{
 	}
 

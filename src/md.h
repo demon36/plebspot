@@ -34,7 +34,7 @@ std::map<std::string, std::vector<md_doc>> get_md_docs(doc_type type);
 std::string render_doc(doc_type type, std::string category, std::string md_file_name);
 std::string render_md_to_html(const std::string& markdown);
 util::outcome<std::string> gen_rss(const std::string& host);
-std::string gen_sitemap(const std::string& host);
+util::outcome<std::string> gen_sitemap(const std::string& host);
 
 }
 

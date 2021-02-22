@@ -71,18 +71,23 @@ void fill_comments(mustache::data& page_data, const vector<comments::comment>& c
 	page_data.set("comments_list", comments_list);
 }
 
-mustache::mustache get_template(){
-	return mustache::mustache(util::get_file_contents(fmt::format("./{}/{}", TEMPLATES_DIR, config::html_tmpl)).get_result());
+util::outcome<mustache::mustache> get_template(){
+	util::outcome<string> template_out = util::get_file_contents(fmt::format("./{}/{}", TEMPLATES_DIR, config::html_tmpl));
+	if(!template_out.is_success()){
+		return template_out.get_error();
+	}
+	return mustache::mustache(template_out.get_result());
 }
 
-std::string render_home_page(){
+util::outcome<string> render_home_page(){
 	stringstream ss;
-	mustache::mustache home_tmpl = get_template();
+	util::outcome<mustache::mustache> template_out = get_template();
+	OUTCOME_ERR_CHECK(template_out);
 	mustache::data home_data;
 	fill_generic_date(home_data);
 	home_data.set("keywords", config::blog_keywords);
 	home_data.set("page_desc", config::blog_desc);
-	home_tmpl.render(home_data, ss);
+	template_out.get_result().render(home_data, ss);
 	return ss.str();
 }
 
@@ -104,7 +109,8 @@ void fill_document_data(mustache::data& page_data, const string& path){//fill wi
 
 util::outcome<string> render_post(const string& path, const string& req_ip, const string& alert_msg, const comments::comment& com){
 	stringstream ss;
-	mustache::mustache post_tmpl = get_template();
+	util::outcome<mustache::mustache> template_out = get_template();
+	OUTCOME_ERR_CHECK(template_out);
 	mustache::data post_data;
 	fill_generic_date(post_data);
 	fill_document_data(post_data, path);
@@ -128,20 +134,20 @@ util::outcome<string> render_post(const string& path, const string& req_ip, cons
 		post_data.set("comment_msg", com.message);
 		post_data.set("comment_author", com.author);
 	}
-	post_tmpl.render(post_data, ss);
+	template_out.get_result().render(post_data, ss);
 	return ss.str();
 }
 
 util::outcome<string> render_page(const string& path){
 	stringstream ss;
-	mustache::mustache post_tmpl = get_template();
+	util::outcome<mustache::mustache> template_out = get_template();
+	OUTCOME_ERR_CHECK(template_out);
+	mustache::mustache post_tmpl = template_out.get_result();
 	mustache::data post_data;
 	fill_generic_date(post_data);
 	fill_document_data(post_data, path);
 	util::outcome<string> contents_out = util::get_file_contents(path.c_str());
-	if(!contents_out.is_success()){
-		return contents_out;
-	}
+	OUTCOME_ERR_CHECK(contents_out);
 	post_data.set("content", md::render_md_to_html(contents_out.get_result()));
 	post_tmpl.render(post_data, ss);
 	return ss.str();

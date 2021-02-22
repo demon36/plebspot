@@ -8,6 +8,8 @@ namespace util {
 
 typedef char error;
 
+#define OUTCOME_ERR_CHECK(o) if(!o.is_success()) return o.get_error()
+
 namespace errors{
 	
 static char counter = 0;

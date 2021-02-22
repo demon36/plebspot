@@ -237,7 +237,7 @@ util::outcome<string> gen_rss(const string& host){
 	</url>
 </urlset> 
 */
-string gen_sitemap(const string& host){
+util::outcome<string> gen_sitemap(const string& host){
 	pugi::xml_document doc;
 	auto declaration_node = doc.append_child(pugi::node_declaration);
 	declaration_node.append_attribute("version") = "1.0";

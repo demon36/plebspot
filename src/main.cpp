@@ -52,6 +52,8 @@ void init(){
 	}
 }
 
+#define HTTP_OUTCOME_ERR_CHECK(o, resp) if(!o.is_success()) return resp.status = 500
+
 error serve(){
 	error e = config::load();
 	if(e != errors::success){
@@ -60,17 +62,16 @@ error serve(){
 	
 	Server svr;
 	svr.Get("/", [](const Request& req, Response& res) {
-		res.set_content(render::render_home_page(), "text/html");
+		outcome<string> home_out = render::render_home_page();
+		HTTP_OUTCOME_ERR_CHECK(home_out, res);
+		res.set_content(home_out.get_result(), "text/html");
 	});
 
 	svr.Get(R"(/(pages/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+\.md))", [&](const Request& req, Response& res) {
 		auto page_path = req.matches[1];
 		if(filesystem::exists(page_path.str())){
 			util::outcome<string> page_out = render::render_page(page_path.str());
-			if(!page_out.is_success()){
-				return res.status = 500;
-			}
-			
+			HTTP_OUTCOME_ERR_CHECK(page_out, res);
 			res.set_content(page_out.get_result(), "text/html");
 			return res.status = 200;
 		} else {
@@ -82,9 +83,7 @@ error serve(){
 		auto post_path = req.matches[1];
 		if(filesystem::exists(post_path.str())){
 			outcome<string> post_out = render::render_post(post_path.str(), req.remote_addr);
-			if(!post_out.is_success()){
-				return res.status = 500;
-			}
+			HTTP_OUTCOME_ERR_CHECK(post_out, res);
 			res.set_content(post_out.get_result(), "text/html");
 			return res.status = 200;
 		} else {
@@ -107,10 +106,7 @@ error serve(){
 
 		if(err_code == errors::success) {
 			outcome<string> post_out = render::render_post(post_path.str(), req.remote_addr);
-			if(!post_out.is_success()){
-				return res.status = 500;
-			}
-			
+			HTTP_OUTCOME_ERR_CHECK(post_out, res);
 			res.set_content(post_out.get_result(), "text/html");
 		} else {
 			outcome<string> post_out = render::render_post(post_path.str(), req.remote_addr, errors::to_string(err_code), com);
@@ -126,9 +122,7 @@ error serve(){
 		string target_path = req.matches[1].str();
 		if(filesystem::exists(target_path)){
 			outcome<string> o = util::get_file_contents(target_path.c_str());
-			if(!o.is_success()){
-				return res.status = 500;
-			}
+			HTTP_OUTCOME_ERR_CHECK(o, res);
 			res.set_content(o.get_result(), "");
 			return res.status = 200;
 		} else {
@@ -154,10 +148,7 @@ error serve(){
 		}
 		
 		util::outcome<string> rss_out = md::gen_rss(host);
-		if(!rss_out.is_success()){
-			return res.status = 500;
-		}
-				
+		HTTP_OUTCOME_ERR_CHECK(rss_out, res);
 		res.set_content(rss_out.get_result(), "application/rss+xml");
 		return res.status = 200;
 	});
@@ -168,7 +159,9 @@ error serve(){
 			host = req.headers.find("Host")->second;
 		}
 
-		res.set_content(md::gen_sitemap(host), "application/xml");
+		outcome<string> sitemap_out = md::gen_sitemap(host);
+		HTTP_OUTCOME_ERR_CHECK(sitemap_out, res);
+		res.set_content(sitemap_out.get_result(), "application/xml");
 		return res.status = 200;
 	});
 
