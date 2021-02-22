@@ -1,46 +1,43 @@
 #ifndef ERRORS_H
 #define ERRORS_H
 
-namespace err {
+#include <vector>
+#include <string>
 
-enum class errors {
-	success,
-	comments_disabled,
-	comment_post_not_exist,
-	comment_message_not_provided,
-	comment_author_not_provided,
-	comment_message_too_large,
-	captcha_answer_not_provided,
-	captcha_wrong_answer,
-	captcha_expired,
-};
+namespace util {
 
-inline std::string to_string(errors e){
-	//todo: enhance this
-	switch(e) {
-		case errors::success:
-			return "success";
-		case errors::comments_disabled:
-			return "comments are disabled";
-		case errors::comment_post_not_exist:
-			return "post does not exist";
-		case errors::comment_message_not_provided:
-			return "comment not provided";
-		case errors::comment_author_not_provided:
-			return "comment author not provided";
-		case errors::comment_message_too_large:
-			return "comment length too large";
-		case errors::captcha_answer_not_provided:
-			return "captcha answer not provided";
-		case errors::captcha_wrong_answer:
-			return "wrong captcha answer";
-		case errors::captcha_expired:
-			return "captcha expired";
-		default:
-			return "";
-	}
+typedef char error;
+
+namespace errors{
+	
+static char counter = 0;
+static std::vector<std::string> names;
+static char add_error_def(const std::string& value){
+	names.push_back(value);
+	return counter++;
 }
 
+#define _UTIL_DEFINE_ERROR(name) const static error name = add_error_def(#name)
+
+_UTIL_DEFINE_ERROR(success);
+_UTIL_DEFINE_ERROR(comments_disabled);
+_UTIL_DEFINE_ERROR(comment_post_not_exist);
+_UTIL_DEFINE_ERROR(comment_message_not_provided);
+_UTIL_DEFINE_ERROR(comment_author_not_provided);
+_UTIL_DEFINE_ERROR(comment_message_too_large);
+_UTIL_DEFINE_ERROR(captcha_answer_not_provided);
+_UTIL_DEFINE_ERROR(captcha_wrong_answer);
+_UTIL_DEFINE_ERROR(captcha_expired);
+_UTIL_DEFINE_ERROR(file_missing);
+_UTIL_DEFINE_ERROR(failed_to_listen);
+
+static std::string to_string(error e){
+	return names[e];
+}
+
+}
+
+	
 }
 
 #endif

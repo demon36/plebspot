@@ -185,7 +185,7 @@ string render_md_to_html(const string& md_str){
 </channel>
 </rss>
 */
-string gen_rss(const string& host){
+util::outcome<string> gen_rss(const string& host){
 	pugi::xml_document doc;
 	auto declaration_node = doc.append_child(pugi::node_declaration);
 	declaration_node.append_attribute("version") = "1.0";
@@ -214,14 +214,18 @@ string gen_rss(const string& host){
 			post_node.append_child("guid").append_child(pugi::node_pcdata).set_value(util::to_absolute_url(host, md.url).c_str());
 			post_node.append_child("pubDate").append_child(pugi::node_pcdata).set_value(md.date.c_str());
 			post_node.append_child("category").append_child(pugi::node_pcdata).set_value(md.category.c_str());
-			string post_html = md::render_md_to_html(util::get_file_contents(md.url.substr(1, -1)));//remove preceding separator
+			util::outcome<string> contents_outcome = util::get_file_contents(md.url.substr(1, -1));
+			if(!contents_outcome.is_success()){
+				return contents_outcome;
+			}
+			string post_html = md::render_md_to_html(contents_outcome.get_result());//remove preceding separator
 			post_node.append_child("description").append_child(pugi::node_pcdata).set_value(post_html.c_str());
 		}
 	}
 
 	stringstream ss;
 	doc.save(ss, "\t");
-	return ss.str();
+	return util::outcome<string>(ss.str());
 }
 
 /* example:

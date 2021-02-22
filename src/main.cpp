@@ -17,7 +17,7 @@
 
 using namespace std;
 using namespace httplib;
-using namespace err;
+using namespace util;
 
 extern const char* plain_html_tmpl;
 extern const char* sample_post_md;
@@ -52,8 +52,12 @@ void init(){
 	}
 }
 
-void serve(){
-	config::load();
+error serve(){
+	error e = config::load();
+	if(e != errors::success){
+		return e;
+	}
+	
 	Server svr;
 	svr.Get("/", [](const Request& req, Response& res) {
 		res.set_content(render::render_home_page(), "text/html");
@@ -62,7 +66,12 @@ void serve(){
 	svr.Get(R"(/(pages/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+\.md))", [&](const Request& req, Response& res) {
 		auto page_path = req.matches[1];
 		if(filesystem::exists(page_path.str())){
-			res.set_content(render::render_page(page_path.str()), "text/html");
+			util::outcome<string> page_out = render::render_page(page_path.str());
+			if(!page_out.is_success()){
+				return res.status = 500;
+			}
+			
+			res.set_content(page_out.get_result(), "text/html");
 			return res.status = 200;
 		} else {
 			return res.status = 404;
@@ -72,7 +81,11 @@ void serve(){
 	svr.Get(R"(/(posts/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+\.md))", [&](const Request& req, Response& res) {
 		auto post_path = req.matches[1];
 		if(filesystem::exists(post_path.str())){
-			res.set_content(render::render_post(post_path.str(), req.remote_addr), "text/html");
+			outcome<string> post_out = render::render_post(post_path.str(), req.remote_addr);
+			if(!post_out.is_success()){
+				return res.status = 500;
+			}
+			res.set_content(post_out.get_result(), "text/html");
 			return res.status = 200;
 		} else {
 			return res.status = 404;
@@ -89,16 +102,19 @@ void serve(){
 			.author_ip = req.remote_addr,
 		};
 
-		errors err_code = comments::post_comment(
+		error err_code = comments::post_comment(
 			post_path.str(), com, req.get_param_value("token"), req.get_param_value("captcha"));
 
 		if(err_code == errors::success) {
-			res.set_content(render::render_post(post_path.str(), req.remote_addr), "text/html");
+			outcome<string> post_out = render::render_post(post_path.str(), req.remote_addr);
+			if(!post_out.is_success()){
+				return res.status = 500;
+			}
+			
+			res.set_content(post_out.get_result(), "text/html");
 		} else {
-			res.set_content(
-				render::render_post(post_path.str(), req.remote_addr, err::to_string(err_code), com),
-				"text/html"
-				);
+			outcome<string> post_out = render::render_post(post_path.str(), req.remote_addr, errors::to_string(err_code), com);
+			res.set_content(post_out.get_result(), "text/html");
 		}
 	});
 
@@ -109,7 +125,11 @@ void serve(){
 	svr.Get(R"(/(static/[a-zA-Z0-9_\-\.]+))", [&](const Request& req, Response& res) {
 		string target_path = req.matches[1].str();
 		if(filesystem::exists(target_path)){
-			res.set_content(util::get_file_contents(target_path.c_str()), "");
+			outcome<string> o = util::get_file_contents(target_path.c_str());
+			if(!o.is_success()){
+				return res.status = 500;
+			}
+			res.set_content(o.get_result(), "");
 			return res.status = 200;
 		} else {
 			return res.status = 404;
@@ -133,7 +153,12 @@ void serve(){
 			host = req.headers.find("Host")->second;
 		}
 		
-		res.set_content(md::gen_rss(host), "application/rss+xml");
+		util::outcome<string> rss_out = md::gen_rss(host);
+		if(!rss_out.is_success()){
+			return res.status = 500;
+		}
+				
+		res.set_content(rss_out.get_result(), "application/rss+xml");
 		return res.status = 200;
 	});
 
@@ -171,7 +196,9 @@ Sitemap: http://www.example.com/sitemap.xml
 
 	const char* ip = "0.0.0.0";
 	fmt::print("plebspot is listening on {}:{}\n", ip, config::http_port);
-	svr.listen(ip, config::http_port);
+	if(!svr.listen(ip, config::http_port)){
+		return errors::failed_to_listen;
+	};
 }
 
 void help(){
@@ -184,6 +211,8 @@ void help(){
 
 int main(int argc, char const *argv[])
 {
+	error e = util::errors::failed_to_listen;
+	string s = util::errors::to_string(e);
 	if(argc == 2 && strcmp(argv[1], "init") == 0){
 		init();
 	} else if(argc == 2 && strcmp(argv[1], "serve") == 0){

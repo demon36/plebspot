@@ -5,6 +5,7 @@
 #include <fstream>
 
 using namespace std;
+using namespace util;
 
 namespace config{
 
@@ -15,9 +16,13 @@ string blog_keywords = "fun, diy";
 int http_port = 1993;
 bool comments_enabled = true;
 
-void load(){
-	string file_contents = util::get_file_contents(CONFIG_FILE);
-	map<string, string> config_items = util::parse_pairs(file_contents);
+util::error load(){
+	outcome<string> file_contents = util::get_file_contents(CONFIG_FILE);
+	if(!file_contents.is_success()){
+		return file_contents.get_error();
+	}
+	
+	map<string, string> config_items = util::parse_pairs(file_contents.get_result());
 
 	//todo: enhance this
 	for( const auto& config_item : config_items) {
@@ -36,6 +41,8 @@ void load(){
 			comments_enabled = value == "true";
 		}
 	}
+	
+	return errors::success;
 }
 
 }

@@ -72,7 +72,7 @@ void fill_comments(mustache::data& page_data, const vector<comments::comment>& c
 }
 
 mustache::mustache get_template(){
-	return mustache::mustache(util::get_file_contents(fmt::format("./{}/{}", TEMPLATES_DIR, config::html_tmpl.c_str()).c_str()));
+	return mustache::mustache(util::get_file_contents(fmt::format("./{}/{}", TEMPLATES_DIR, config::html_tmpl)).get_result());
 }
 
 std::string render_home_page(){
@@ -102,7 +102,7 @@ void fill_document_data(mustache::data& page_data, const string& path){//fill wi
 
 }
 
-string render_post(const string& path, const string& req_ip, const string& alert_msg, const comments::comment& com){
+util::outcome<string> render_post(const string& path, const string& req_ip, const string& alert_msg, const comments::comment& com){
 	stringstream ss;
 	mustache::mustache post_tmpl = get_template();
 	mustache::data post_data;
@@ -117,8 +117,12 @@ string render_post(const string& path, const string& req_ip, const string& alert
 		post_data.set("comment_token", comments::gen_token(path, req_ip, coms.size()));
 	}
 	
-	string file_contents = util::get_file_contents(path.c_str());
-	post_data.set("content", md::render_md_to_html(file_contents));
+	util::outcome<string> contents_out = util::get_file_contents(path.c_str());
+	if(!contents_out.is_success()){
+		return contents_out;
+	}
+	
+	post_data.set("content", md::render_md_to_html(contents_out.get_result()));
 	if(!alert_msg.empty()){
 		post_data.set("alert_msg", alert_msg);
 		post_data.set("comment_msg", com.message);
@@ -128,14 +132,17 @@ string render_post(const string& path, const string& req_ip, const string& alert
 	return ss.str();
 }
 
-string render_page(const string& path){
+util::outcome<string> render_page(const string& path){
 	stringstream ss;
 	mustache::mustache post_tmpl = get_template();
 	mustache::data post_data;
 	fill_generic_date(post_data);
 	fill_document_data(post_data, path);
-	string file_contents = util::get_file_contents(path.c_str());
-	post_data.set("content", md::render_md_to_html(file_contents));
+	util::outcome<string> contents_out = util::get_file_contents(path.c_str());
+	if(!contents_out.is_success()){
+		return contents_out;
+	}
+	post_data.set("content", md::render_md_to_html(contents_out.get_result()));
 	post_tmpl.render(post_data, ss);
 	return ss.str();
 }

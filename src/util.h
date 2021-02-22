@@ -2,10 +2,11 @@
 
 #include <map>
 #include <string>
+#include "outcome.h"
 
 namespace util{
 
-std::string get_file_contents(const std::string& filename);
+outcome<std::string> get_file_contents(const std::string& filename);
 std::pair<std::string, std::string> split(const std::string& s, const std::string& token);
 std::string trim(const std::string &s);
 std::map<std::string, std::string> parse_pairs(const std::string& kv_pairs);

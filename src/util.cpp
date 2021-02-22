@@ -19,7 +19,7 @@ using namespace std;
 
 namespace util{
 
-string get_file_contents(const string& filename){
+outcome<string> get_file_contents(const string& filename){
 	std::ifstream in(filename, std::ios::in | std::ios::binary);
 	if(in){
 		std::string contents;
@@ -28,9 +28,9 @@ string get_file_contents(const string& filename){
 		in.seekg(0, std::ios::beg);
 		in.read(&contents[0], contents.size());
 		in.close();
-		return(contents);
+		return outcome<string>(contents);
 	}
-	return "";//todo: use outcomes
+	return outcome<string>(errors::file_missing);
 }
 
 pair<string, string> split(const string& s, const string& token){

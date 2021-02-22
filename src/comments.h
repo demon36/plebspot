@@ -30,7 +30,7 @@ token deserialize_token(const std::string& tok_str);
 std::string gen_token(const std::string& post_path, const std::string& ip, std::size_t num_comments);
 std::vector<unsigned char> gen_captcha_gif(const std::string& token);
 bool validate_captcha(const std::string& post_path, const std::string& token, const std::string& user_input, const std::string& ip);
-err::errors post_comment(const std::string& post_path, const comments::comment& comment, const std::string& token, const std::string& captcha_answer);
+util::error post_comment(const std::string& post_path, const comments::comment& comment, const std::string& token, const std::string& captcha_answer);
 std::vector<comment> get_comments(const std::string& post_path);
 void test();
 

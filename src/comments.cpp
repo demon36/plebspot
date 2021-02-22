@@ -15,6 +15,7 @@
 #include <filesystem>
 
 using namespace std;
+using namespace util;
 
 namespace comments{
 
@@ -119,33 +120,33 @@ bool validate_captcha(const string& post_path, const string& token_str, const st
 		diff(get_comments(post_path).size(), tok.num_comments) < MAX_COMMENTS_COUNT_DIFF;
 }
 
-err::errors post_comment(const string& post_path, const comments::comment& comment, const string& token, const string& captcha_answer){
+util::error post_comment(const string& post_path, const comments::comment& comment, const string& token, const string& captcha_answer){
 	if(!config::comments_enabled){
-		return err::errors::comments_disabled;
+		return errors::comments_disabled;
 	}
 
 	if(!filesystem::exists(post_path)){
-		return err::errors::comment_post_not_exist;
+		return errors::comment_post_not_exist;
 	}
 
 	if(util::trim(comment.author).empty()){
-		return err::errors::comment_author_not_provided;	
+		return errors::comment_author_not_provided;	
 	}
 
 	if(util::trim(comment.message).empty()){
-		return err::errors::comment_message_not_provided;
+		return errors::comment_message_not_provided;
 	}
 
 	if(util::trim(comment.message).size() > MAX_COMMENT_MESSAGE_LENGTH){
-		return err::errors::comment_message_too_large;
+		return errors::comment_message_too_large;
 	}
 
 	if(util::trim(captcha_answer).empty()){
-		return err::errors::captcha_answer_not_provided;
+		return errors::captcha_answer_not_provided;
 	}
 
 	if(!validate_captcha(post_path, token, captcha_answer, comment.author_ip)){
-		return err::errors::captcha_wrong_answer;
+		return errors::captcha_wrong_answer;
 	}
 
 	string author = comment.author;
@@ -162,7 +163,7 @@ err::errors post_comment(const string& post_path, const comments::comment& comme
 		<< kainjow::mustache::html_escape(msg) << "\n";
 	comments_file.flush();
 
-	return err::errors::success;
+	return errors::success;
 }
 
 vector<comment> get_comments(const string& post_path){
