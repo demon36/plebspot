@@ -17,7 +17,7 @@ MAJOR_VERSION := 0
 MINOR_VERSION := 1.9
 
 DEP_SRC_FILES := thirdparty/cpp-base64/base64.cpp
-DEP_SRC_DIRS := thirdparty/fmt/src thirdparty/captcha/src thirdparty/pugixml/src
+DEP_SRC_DIRS := thirdparty/fmt/src thirdparty/captcha/src thirdparty/pugixml/src thirdparty/hoedown/src
 DEP_CFLAGS := -Ithirdparty/cpp-httplib -Ithirdparty/fmt/include -Ithirdparty/hoedown/src -Ithirdparty/Mustache \
 	-Ithirdparty/captcha/include -Ithirdparty/plusaes/include -Ithirdparty/cpp-base64 -Ithirdparty/pugixml/src
 
@@ -37,11 +37,12 @@ endif
 
 TEST_FILE := main_test
 
-CFLAGS := -m$(ARCH) -Wall -Werror -g -std=c++17 -I$(INC_DIR) #-Wconversion
+#todo: only use fpermissive with thirdparty libraries
+CFLAGS := -m$(ARCH) -Wall -g -std=c++17 -I$(INC_DIR) -fpermissive#-Wconversion -Werror
 CFLAGS_DEBUG := -DDEBUG
 CFLAGS_RELEASE := -O3 -w -DNDEBUG
 INC := $(DEP_CFLAGS)
-LIBS := -lpthread -L./thirdparty/hoedown -l:libhoedown.a#ex: -L./ext/thirdparty/lib -lthirdpary
+LIBS := -lpthread
 ifeq ($(OS),Windows_NT)
 	LIBS += -lws2_32 
 endif
@@ -94,9 +95,6 @@ $(LIB_DIR)/$(SO_FILE): $(OBJ_FILES)
 	$(CXX) -g -o $@.$(MAJOR_VERSION).$(MINOR_VERSION) $(OBJ_FILES) $(LDFLAGS) $(SO_LDFLAGS) $(LIBS)
 	ln -sf ./$(SO_FILE).$(MAJOR_VERSION).$(MINOR_VERSION) $(LIB_DIR)/$(SO_FILE).$(MAJOR_VERSION)
 	ln -sf ./$(SO_FILE).$(MAJOR_VERSION).$(MINOR_VERSION) $(LIB_DIR)/$(SO_FILE)
-
-depend:
-	$(MAKE) -C ./thirdparty/hoedown
 
 install: all
 	cp $(BIN_DIR)/$(EXEC_FILE) '${HOME}/bin/'

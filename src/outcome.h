@@ -15,7 +15,7 @@ public:
 	{
 	}
 
-	outcome(const error& e) : error(e), success(false)
+	outcome(const error& e) : err(e), success(false)
 	{
 	} 
 
@@ -29,7 +29,7 @@ public:
 
 	outcome(const outcome& o) :
 		result(o.result),
-		error(o.error),
+		err(o.err),
 		success(o.success)
 	{
 	}
@@ -39,7 +39,7 @@ public:
 		if (this != &o)
 		{
 			result = o.result;
-			error = o.error;
+			err = o.err;
 			success = o.success;
 		}
 
@@ -48,7 +48,7 @@ public:
 
 	outcome(outcome&& o) : // Required to force Move Constructor
 		result(std::move(o.result)),
-		error(std::move(o.error)),
+		err(std::move(o.err)),
 		success(o.success)
 	{
 	}
@@ -58,7 +58,7 @@ public:
 		if (this != &o)
 		{
 			result = std::move(o.result);
-			error = std::move(o.error);
+			err = std::move(o.err);
 			success = o.success;
 		}
 
@@ -86,7 +86,7 @@ public:
 
 	inline const error& get_error() const
 	{
-		return error;
+		return err;
 	}
 
 	inline bool is_success() const
@@ -96,7 +96,7 @@ public:
 
 private:
 	R result;
-	error error;
+	error err;
 	bool success;
 };
 

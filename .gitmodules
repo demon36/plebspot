@@ -6,10 +6,10 @@
 	url = https://github.com/fmtlib/fmt.git
 [submodule "thirdparty/hoedown"]
 	path = thirdparty/hoedown
-	url = https://github.com/hoedown/hoedown.git
+	url = https://github.com/demon36/hoedown.git
 [submodule "thirdparty/Mustache"]
 	path = thirdparty/Mustache
-	url = https://github.com/kainjow/Mustache.git
+	url = https://github.com/demon36/Mustache.git
 [submodule "thirdparty/date"]
 	path = thirdparty/date
 	url = https://github.com/HowardHinnant/date.git

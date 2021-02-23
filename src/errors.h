@@ -33,7 +33,7 @@ _UTIL_DEFINE_ERROR(captcha_expired);
 _UTIL_DEFINE_ERROR(file_missing);
 _UTIL_DEFINE_ERROR(failed_to_listen);
 
-static std::string to_string(error e){
+inline std::string to_string(error e){
 	return names[e];
 }
 
