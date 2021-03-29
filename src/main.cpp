@@ -1,6 +1,7 @@
 #include <httplib.h>
 #include <filesystem>
 #include <fmt/core.h>
+#include <fmt/os.h>
 
 #include <string>
 #include <sstream>
@@ -41,14 +42,16 @@ void init(){
 	ofstream sample_post_stream(POSTS_DIR "/my_category/sample_post.md");
 	sample_post_stream << sample_post_md;
 	if(!filesystem::exists(CONFIG_FILE)){
-		ofstream config_stream(CONFIG_FILE);
-		config_stream <<
-			"blog_title: " << config::fields.blog_title << "\n"
-			"blog_desc:  " << config::fields.blog_desc << "\n"
-			"blog_keywords:  " << config::fields.blog_keywords << "\n"
-			"http_port:  " << config::fields.http_port << "\n"
-			"html_tmpl:  " << config::fields.html_tmpl << "\n"
-			"comments_enabled:  " << (config::fields.comments_enabled ? "true" : "false") << "\n";
+		auto out = fmt::output_file(CONFIG_FILE);
+		out.print("blog_title: {}\n"
+			"blog_desc:  {}\n"
+			"blog_keywords:  {}\n"
+			"http_port:  {}\n"
+			"html_tmpl:  {}\n"
+			"comments_enabled:  {}\n",
+			config::fields.blog_title, config::fields.blog_desc, config::fields.blog_keywords, config::fields.http_port,
+			config::fields.html_tmpl, (config::fields.comments_enabled ? "true" : "false")
+		);
 	}
 }
 
@@ -65,6 +68,7 @@ error serve(){
 		outcome<string> home_out = render::render_home_page();
 		HTTP_OUTCOME_ERR_CHECK(home_out, res);
 		res.set_content(home_out.get_result(), "text/html");
+		return res.status = 200;
 	});
 
 	svr.Get(R"(/(pages/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+\.md))", [&](const Request& req, Response& res) {
@@ -108,9 +112,11 @@ error serve(){
 			outcome<string> post_out = render::render_post(post_path.str(), req.remote_addr);
 			HTTP_OUTCOME_ERR_CHECK(post_out, res);
 			res.set_content(post_out.get_result(), "text/html");
+			return res.status = 200;
 		} else {
 			outcome<string> post_out = render::render_post(post_path.str(), req.remote_addr, errors::to_string(err_code), com);
 			res.set_content(post_out.get_result(), "text/html");
+			return res.status = 500;
 		}
 	});
 
@@ -192,6 +198,8 @@ Sitemap: http://www.example.com/sitemap.xml
 	if(!svr.listen(ip, config::fields.http_port)){
 		return errors::failed_to_listen;
 	};
+
+	return errors::success;
 }
 
 void help(){
