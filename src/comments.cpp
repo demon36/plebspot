@@ -11,8 +11,10 @@
 #include <time.h>
 #include <iostream>
 #include <base64.h>
-#include <captcha.h>
 #include <filesystem>
+extern "C" {
+#include <captcha.h>
+}
 
 using namespace std;
 using namespace util;
@@ -121,7 +123,7 @@ bool validate_captcha(const string& post_path, const string& token_str, const st
 }
 
 util::error post_comment(const string& post_path, const comments::comment& comment, const string& token, const string& captcha_answer){
-	if(!config::comments_enabled){
+	if(!config::fields.comments_enabled){
 		return errors::comments_disabled;
 	}
 

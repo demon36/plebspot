@@ -196,9 +196,9 @@ util::outcome<string> gen_rss(const string& host){
 	rss_node.append_attribute("version") = "2.0";
 
 	auto channel_node = rss_node.append_child("channel");
-	channel_node.append_child("title").append_child(pugi::node_pcdata).set_value(config::blog_title.c_str());
+	channel_node.append_child("title").append_child(pugi::node_pcdata).set_value(config::fields.blog_title.c_str());
 	channel_node.append_child("link").append_child(pugi::node_pcdata).set_value(util::to_absolute_url(host, "/rss.xml").c_str());
-	channel_node.append_child("description").append_child(pugi::node_pcdata).set_value(config::blog_desc.c_str());
+	channel_node.append_child("description").append_child(pugi::node_pcdata).set_value(config::fields.blog_desc.c_str());
 	channel_node.append_child("generator").append_child(pugi::node_pcdata).set_value("plebspot - pugixml");
 	channel_node.append_child("lastBuildDate").append_child(pugi::node_pcdata).set_value(util::get_current_time().c_str());
 
@@ -253,7 +253,7 @@ util::outcome<string> gen_sitemap(const string& host){
 	for(const auto& it : posts){
 		for(const md_doc& md : it.second){
 			auto url_node = urlset_node.append_child("url");
-			string absolute_url = util::to_absolute_url(host, md.url, false);
+			string absolute_url = util::to_absolute_url(host, md.url);
 			url_node.append_child("loc").append_child(pugi::node_pcdata).set_value(absolute_url.c_str());
 			string w3c_date;
 			if(md.date.empty()){

@@ -41,8 +41,8 @@ void get_md_list_data(const std::map<string, vector<md::md_doc>>& docs_map, must
 }
 
 void fill_generic_date(mustache::data& page_data){
-	page_data.set("blog_title", config::blog_title);
-	page_data.set("blog_desc", config::blog_desc);
+	page_data.set("blog_title", config::fields.blog_title);
+	page_data.set("blog_desc", config::fields.blog_desc);
 
 	mustache::data pages_list{mustache::data::type::list};
 	mustache::data cat_pages_list{mustache::data::type::list};
@@ -72,7 +72,7 @@ void fill_comments(mustache::data& page_data, const vector<comments::comment>& c
 }
 
 util::outcome<mustache::mustache> get_template(){
-	util::outcome<string> template_out = util::get_file_contents(fmt::format("./{}/{}", TEMPLATES_DIR, config::html_tmpl));
+	util::outcome<string> template_out = util::get_file_contents(fmt::format("./{}/{}", TEMPLATES_DIR, config::fields.html_tmpl));
 	if(!template_out.is_success()){
 		return template_out.get_error();
 	}
@@ -85,8 +85,8 @@ util::outcome<string> render_home_page(){
 	OUTCOME_ERR_CHECK(template_out);
 	mustache::data home_data;
 	fill_generic_date(home_data);
-	home_data.set("keywords", config::blog_keywords);
-	home_data.set("page_desc", config::blog_desc);
+	home_data.set("keywords", config::fields.blog_keywords);
+	home_data.set("page_desc", config::fields.blog_desc);
 	template_out.get_result().render(home_data, ss);
 	return ss.str();
 }
@@ -100,7 +100,7 @@ void fill_document_data(mustache::data& page_data, const string& path){//fill wi
 	if(!doc.date.empty())		page_data.set("date", doc.date);
 	if(!doc.category.empty())	page_data.set("category", doc.category);
 	if(doc.keywords.empty()){
-		page_data.set("keywords", config::blog_keywords);
+		page_data.set("keywords", config::fields.blog_keywords);
 	} else {
 		page_data.set("keywords", doc.keywords);
 	}
@@ -118,7 +118,7 @@ util::outcome<string> render_post(const string& path, const string& req_ip, cons
 	vector<comments::comment> coms = comments::get_comments(path);
 	fill_comments(post_data, coms);
 	
-	if(config::comments_enabled){
+	if(config::fields.comments_enabled){
 		post_data.set("comments_enabled", true);
 		post_data.set("comment_token", comments::gen_token(path, req_ip, coms.size()));
 	}

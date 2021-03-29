@@ -1,45 +1,39 @@
 #include "config.h"
 
-#include "util.h"
-
 #include <fstream>
+#include <fmt/core.h>
+#include "util.h"
 
 using namespace std;
 using namespace util;
 
-namespace config{
+config config::fields;
 
-string blog_title = "my blog";
-string blog_desc = "random stuff";
-string html_tmpl = "plain.html";
-string blog_keywords = "fun, diy";
-int http_port = 1993;
-bool comments_enabled = true;
-
-util::error load(){
+util::error config::load(){
 	outcome<string> file_contents = util::get_file_contents(CONFIG_FILE);
 	OUTCOME_ERR_CHECK(file_contents);
-	map<string, string> config_items = util::parse_pairs(file_contents.get_result());
+	map<string, string> config_file_items = util::parse_pairs(file_contents.get_result());
 
-	//todo: enhance this
-	for( const auto& config_item : config_items) {
-		string value = util::trim(config_item.second);
-		if (config_item.first == "blog_title"){
-			blog_title = value;
-		} else if (config_item.first == "http_port"){
-			http_port = atoi(value.c_str());
-		} else if (config_item.first == "blog_desc"){
-			blog_desc = value;
-		} else if (config_item.first == "blog_keywords"){
-			blog_keywords = value;
-		} else if (config_item.first == "html_tmpl"){
-			html_tmpl = value;
-		} else if (config_item.first == "comments_enabled"){
-			comments_enabled = value == "true";
+	for(auto& field : fields.text_fields) {
+		if(config_file_items.find(field.first) != config_file_items.end()){
+			field.second.assign(util::trim(config_file_items[field.first]));
+			fmt::print("config::params.{} = {}\n", field.first, field.second);
 		}
 	}
-	
-	return errors::success;
-}
 
+	for(auto& field : fields.int_fields) {
+		if(config_file_items.find(field.first) != config_file_items.end()){
+			field.second = atoi(config_file_items[field.first].c_str());//todo: error check
+			fmt::print("config::params.{} = {}\n", field.first, field.second);
+		}
+	}
+
+	for(auto& field : fields.bool_fields) {
+		if(config_file_items.find(field.first) != config_file_items.end()){
+			field.second = config_file_items[field.first]  == "true";
+			fmt::print("config::params.{} = {}\n", field.first, field.second);
+		}
+	}
+
+	return errors::success;
 }

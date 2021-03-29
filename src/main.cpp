@@ -28,7 +28,7 @@ void init(){
 	filesystem::create_directory(POSTS_DIR "/my_category");
 	filesystem::create_directory(STATIC_DIR);
 	filesystem::create_directory(TEMPLATES_DIR);
-	string plain_tmpl_path = string(TEMPLATES_DIR) + "/" + config::html_tmpl;
+	string plain_tmpl_path = string(TEMPLATES_DIR) + "/" + config::fields.html_tmpl;
 	if(!filesystem::exists(plain_tmpl_path)){
 		ofstream plain_tmpl(plain_tmpl_path);
 		plain_tmpl << plain_html_tmpl;
@@ -43,12 +43,12 @@ void init(){
 	if(!filesystem::exists(CONFIG_FILE)){
 		ofstream config_stream(CONFIG_FILE);
 		config_stream <<
-			"blog_title: " << config::blog_title << "\n"
-			"blog_desc:  " << config::blog_desc << "\n"
-			"blog_keywords:  " << config::blog_keywords << "\n"
-			"http_port:  " << config::http_port << "\n"
-			"html_tmpl:  " << config::html_tmpl << "\n"
-			"comments_enabled:  " << (config::comments_enabled ? "true" : "false") << "\n";
+			"blog_title: " << config::fields.blog_title << "\n"
+			"blog_desc:  " << config::fields.blog_desc << "\n"
+			"blog_keywords:  " << config::fields.blog_keywords << "\n"
+			"http_port:  " << config::fields.http_port << "\n"
+			"html_tmpl:  " << config::fields.html_tmpl << "\n"
+			"comments_enabled:  " << (config::fields.comments_enabled ? "true" : "false") << "\n";
 	}
 }
 
@@ -188,8 +188,8 @@ Sitemap: http://www.example.com/sitemap.xml
 	*/
 
 	const char* ip = "0.0.0.0";
-	fmt::print("plebspot is listening on {}:{}\n", ip, config::http_port);
-	if(!svr.listen(ip, config::http_port)){
+	fmt::print("plebspot is listening on {}:{}\n", ip, config::fields.http_port);
+	if(!svr.listen(ip, config::fields.http_port)){
 		return errors::failed_to_listen;
 	};
 }
