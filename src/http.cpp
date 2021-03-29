@@ -137,8 +137,17 @@ int handle_robots_txt(const Request& req, Response& res){
 }
 
 int handle_error(const Request& req, Response& res){
-	fmt::print("error while serving url {}\n", req.path);
-	return 500;
+	fmt::print("@handle_error, req.path = {}\n", req.path);
+	return res.status;
+}
+
+int handle_404(const Request& req, Response& res){
+	fmt::print("@handle_404, req.path = {}\n", req.path);
+	outcome<string> err_page_out = render::render_err_page(404);
+	HTTP_OUTCOME_ERR_CHECK(err_page_out, res);
+	res.set_content(err_page_out.get_result(), "text/html");
+	fmt::print("@handle_404, passed res.set_content\n");
+	return res.status = 404;
 }
 
 int redirect_to_https(const Request& req, Response& res){
@@ -152,6 +161,7 @@ int redirect_to_https(const Request& req, Response& res){
 	string url = fmt::format("https://{}{}", host, req.target);
 	fmt::print("redirecting request to url = {}\n", url);
 	res.set_redirect(url);
+	return res.status = 302;
 }
 
 error serve(){
@@ -179,6 +189,7 @@ error serve(){
 	svr->Get("/rss.xml", handle_rss);
 	svr->Get("/sitemap.xml", handle_sitemap);
 	svr->Get("/robots.txt", handle_robots_txt);
+	svr->Get(R"(.+)", handle_404);
 	svr->set_error_handler(handle_error);
 
 	const char* ip = "0.0.0.0";

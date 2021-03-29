@@ -153,4 +153,16 @@ util::outcome<string> render_page(const string& path){
 	return ss.str();
 }
 
+util::outcome<std::string> render_err_page(int http_err){
+	stringstream ss;
+	util::outcome<mustache::mustache> template_out = get_template();
+	OUTCOME_ERR_CHECK(template_out);
+	mustache::mustache post_tmpl = template_out.get_result();
+	mustache::data post_data;
+	fill_generic_date(post_data);
+	post_data.set("content", md::render_md_to_html(fmt::format("## error {}", http_err)));
+	post_tmpl.render(post_data, ss);
+	return ss.str();
+}
+
 }
