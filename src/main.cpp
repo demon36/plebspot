@@ -1,12 +1,9 @@
+#include <string>
+#include <fstream>
+#include <filesystem>
 #include <fmt/core.h>
 #include <fmt/os.h>
 
-#include <string>
-#include <sstream>
-#include <fstream>
-#include <iostream>
-
-#include "md.h"
 #include "config.h"
 #include "rss.png.h"
 #include "comments.h"
@@ -41,24 +38,24 @@ void init(){
 	sample_post_stream << sample_post_md;
 	if(!filesystem::exists(CONFIG_FILE)){
 		auto out = fmt::output_file(CONFIG_FILE);
-		out.print("blog_title: {}\n"
-			"blog_desc:  {}\n"
-			"blog_keywords:  {}\n"
-			"http_port:  {}\n"
-			"html_tmpl:  {}\n"
-			"comments_enabled:  {}\n",
-			config::fields.blog_title, config::fields.blog_desc, config::fields.blog_keywords, config::fields.http_port,
-			config::fields.html_tmpl, (config::fields.comments_enabled ? "true" : "false")
-		);
+		for(auto& field : config::fields.int_fields){
+			out.print("{}: {}\n", field.first, field.second); 
+		}
+		for(auto& field : config::fields.text_fields){
+			out.print("{}: {}\n", field.first, field.second); 
+		}
+		for(auto& field : config::fields.bool_fields){
+			out.print("{}: {}\n", field.first, field.second ? "true" : "false"); 
+		}
 	}
 }
 
 void help(){
-	cout << "usage:\n"
+	fmt::print("usage:\n"
 		"\tplebspot init\n"
 		"\t\tcreate sample files and folder needed for operation\n"
 		"\tplebspot serve\n"
-		"\t\tserves plebspot http application on port 1993 or port configured in pleb.yml\n";
+		"\t\tserves plebspot http application on port 1993 or port configured in pleb.yml\n");
 }
 
 int main(int argc, char const *argv[])
@@ -68,7 +65,11 @@ int main(int argc, char const *argv[])
 	if(argc == 2 && strcmp(argv[1], "init") == 0){
 		init();
 	} else if(argc == 2 && strcmp(argv[1], "serve") == 0){
-		http::serve();
+		error err = http::serve();
+		if(err != errors::success){
+			fmt::print("error: {}", errors::to_string(err));
+			return 1;
+		}
 	} else if(argc == 2 && strcmp(argv[1], "test") == 0){
 		comments::test();
 	} else if(argc == 2 && strcmp(argv[1], "--version") == 0){

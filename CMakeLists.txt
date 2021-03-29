@@ -23,11 +23,12 @@ file(GLOB DEP_SRC_FILES thirdparty/pugixml/src/*.cpp)
 add_library(pugixml STATIC ${DEP_SRC_FILES})
 target_include_directories(pugixml PUBLIC thirdparty/pugixml/src)
 
+add_subdirectory(thirdparty/openssl-cmake EXCLUDE_FROM_ALL)
 
 file(GLOB SRC_FILES src/*.cpp)
 add_executable(plebspot ${SRC_FILES})
 target_include_directories(plebspot PRIVATE thirdparty/Mustache thirdparty/plusaes/include thirdparty/cpp-httplib)
-target_link_libraries(plebspot fmt captcha cpp-base64 hoedown pugixml)
+target_link_libraries(plebspot fmt captcha cpp-base64 hoedown pugixml ssl crypto)
 
 if(WIN32)
 	target_link_libraries(plebspot ws2_32)

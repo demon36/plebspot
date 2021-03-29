@@ -1,7 +1,9 @@
+#define CPPHTTPLIB_OPENSSL_SUPPORT
+#include <httplib.h>
 #include "http.h"
 #include <filesystem>
+#include <future>
 #include <fmt/core.h>
-#include <httplib.h>
 #include "config.h"
 #include "comments.h"
 #include "md.h"
@@ -22,16 +24,36 @@ error serve(){
 	if(e != errors::success){
 		return e;
 	}
+
+	unique_ptr<Server> svr;
+	unique_ptr<Server> http_redirect_svr;
+	if(config::fields.use_ssl){
+		svr.reset(new SSLServer(config::fields.cert_path.c_str(), config::fields.cert_key_path.c_str()));
+		http_redirect_svr.reset(new Server());
+		http_redirect_svr->Get(R"(.+)", [](const Request& req, Response& res){
+			string host = req.headers.find("Host")->second;
+			if(host.find(":") != host.npos){
+				host = host.substr(0, host.find(":"));
+			}
+			if(config::fields.https_port != 443){
+				host += ":" + to_string(config::fields.https_port);
+			}
+			string url = fmt::format("https://{}{}", host, req.target);
+			fmt::print("redirecting request to url = {}\n", url);
+			res.set_redirect(url);
+		});
+	} else {
+		svr.reset(new Server());
+	}
 	
-	Server svr;
-	svr.Get("/", [](const Request& req, Response& res) {
+	svr->Get("/", [](const Request& req, Response& res) {
 		outcome<string> home_out = render::render_home_page();
 		HTTP_OUTCOME_ERR_CHECK(home_out, res);
 		res.set_content(home_out.get_result(), "text/html");
 		return res.status = 200;
 	});
 
-	svr.Get(R"(/(pages/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+\.md))", [&](const Request& req, Response& res) {
+	svr->Get(R"(/(pages/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+\.md))", [&](const Request& req, Response& res) {
 		auto page_path = req.matches[1];
 		if(filesystem::exists(page_path.str())){
 			util::outcome<string> page_out = render::render_page(page_path.str());
@@ -43,7 +65,7 @@ error serve(){
 		}
 	});
 
-	svr.Get(R"(/(posts/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+\.md))", [&](const Request& req, Response& res) {
+	svr->Get(R"(/(posts/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+\.md))", [&](const Request& req, Response& res) {
 		auto post_path = req.matches[1];
 		if(filesystem::exists(post_path.str())){
 			outcome<string> post_out = render::render_post(post_path.str(), req.remote_addr);
@@ -55,7 +77,7 @@ error serve(){
 		}
 	});
 
-	svr.Post(R"(/(posts/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+\.md))", [&](const Request& req, Response& res) {
+	svr->Post(R"(/(posts/([a-zA-Z0-9_\-\.]+/)*[a-zA-Z0-9_\-\.]+\.md))", [&](const Request& req, Response& res) {
 		auto post_path = req.matches[1];
 
 		comments::comment com = {
@@ -80,11 +102,11 @@ error serve(){
 		}
 	});
 
-	svr.set_error_handler([](const Request& req, Response& res) {
+	svr->set_error_handler([](const Request& req, Response& res) {
 		fmt::print("error while serving url {}\n", req.path);
 	});
 
-	svr.Get(R"(/(static/[a-zA-Z0-9_\-\.]+))", [&](const Request& req, Response& res) {
+	svr->Get(R"(/(static/[a-zA-Z0-9_\-\.]+))", [&](const Request& req, Response& res) {
 		string target_path = req.matches[1].str();
 		if(filesystem::exists(target_path)){
 			outcome<string> o = util::get_file_contents(target_path.c_str());
@@ -96,7 +118,7 @@ error serve(){
 		}
 	});
 
-	svr.Get(R"(/captcha/(.+))", [&](const Request& req, Response& res) {
+	svr->Get(R"(/captcha/(.+))", [&](const Request& req, Response& res) {
 		string token = req.matches[1].str();
 		std::vector<unsigned char> gif = comments::gen_captcha_gif(token);
 		if(gif.empty()){
@@ -107,7 +129,7 @@ error serve(){
 		}
 	});
 
-	svr.Get("/rss.xml", [&](const Request& req, Response& res) {
+	svr->Get("/rss.xml", [&](const Request& req, Response& res) {
 		string host;
 		if(req.headers.find("Host") != req.headers.end()){
 			host = req.headers.find("Host")->second;
@@ -119,7 +141,7 @@ error serve(){
 		return res.status = 200;
 	});
 
-	svr.Get("/sitemap.xml", [&](const Request& req, Response& res) {
+	svr->Get("/sitemap.xml", [&](const Request& req, Response& res) {
 		string host;
 		if(req.headers.find("Host") != req.headers.end()){
 			host = req.headers.find("Host")->second;
@@ -131,7 +153,7 @@ error serve(){
 		return res.status = 200;
 	});
 
-	svr.Get("/robots.txt", [&](const Request& req, Response& res) {
+	svr->Get("/robots.txt", [&](const Request& req, Response& res) {
 		string host;
 		if(req.headers.find("Host") != req.headers.end()){
 			host = req.headers.find("Host")->second;
@@ -145,20 +167,22 @@ error serve(){
 		return res.status = 200;
 	});
 
-	/*
-User-agent: *
-Allow: /
-
-Sitemap: http://www.example.com/sitemap.xml
-
-	*/
-
 	const char* ip = "0.0.0.0";
-	fmt::print("plebspot is listening on {}:{}\n", ip, config::fields.http_port);
-	if(!svr.listen(ip, config::fields.http_port)){
+	int primary_server_port = config::fields.use_ssl ? config::fields.https_port : config::fields.http_port;
+	future<bool> redirect_server_future;
+	if(config::fields.use_ssl){
+		fmt::print("plebspot is attempting to listen on redirect address {}:{}\n", ip, config::fields.http_port);
+		redirect_server_future = async(&Server::listen, http_redirect_svr.get(), ip, config::fields.http_port, 0);
+	}
+	fmt::print("plebspot is attempting to listen on primary address {}:{}\n", ip, primary_server_port);
+	if(!svr->listen(ip, primary_server_port)){
 		return errors::failed_to_listen;
 	};
 
+	if(!redirect_server_future.get()){
+		return errors::failed_to_listen;
+	};
+	
 	return errors::success;
 }
 
