@@ -55,7 +55,10 @@ void help(){
 		"\tplebspot init\n"
 		"\t\tcreate sample files and folder needed for operation\n"
 		"\tplebspot serve\n"
-		"\t\tserves plebspot http application on port 1993 or port configured in pleb.yml\n");
+		"\t\tserves plebspot http application on port 1993 or port configured in pleb.yml\n"
+		"\tplebspot --version\n"
+		"\t\tdisplays version\n"
+		);
 }
 
 int main(int argc, char const *argv[])

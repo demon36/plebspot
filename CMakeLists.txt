@@ -32,4 +32,10 @@ target_link_libraries(plebspot fmt captcha cpp-base64 hoedown pugixml ssl crypto
 
 if(WIN32)
 	target_link_libraries(plebspot ws2_32)
+elseif(UNIX)
+	target_link_libraries(plebspot -static-libstdc++)
+endif()
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	target_link_libraries(plebspot -static-libgcc)
 endif()

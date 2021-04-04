@@ -10,11 +10,14 @@ write and manage content in markdown with minimal effort/footprint/cpu-cycles/in
 git clone --recursive --shallow-submodules git@github.com:demon36/plebspot.git
 cd plebspot
 ```
-- for linux:
+- via cmake:
+```
+cmake . -Bbuild && cmake --build build
+```
+- via make on gnu/linux (must have `libssl-dev` or alternative pre-installed):
 ```
 make
 ```
-- for windows and mac use cmake
 
 #### how to use ?
 - initialize plebspot in an empty directory 

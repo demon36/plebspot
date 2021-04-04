@@ -21,7 +21,7 @@ DEP_SRC_DIRS := thirdparty/fmt/src thirdparty/captcha/src thirdparty/pugixml/src
 DEP_CFLAGS := -Ithirdparty/cpp-httplib -Ithirdparty/fmt/include -Ithirdparty/hoedown/src -Ithirdparty/Mustache \
 	-Ithirdparty/captcha/include -Ithirdparty/plusaes/include -Ithirdparty/cpp-base64 -Ithirdparty/pugixml/src
 
-SRC_FILES := $(shell test -d $(SRC_DIR) && find $(SRC_DIR) $(DEP_SRC_DIRS)  -regex '.*\.\(c\|cc\|cpp\|cxx\)') $(DEP_SRC_FILES)
+SRC_FILES := $(shell test -d $(SRC_DIR) && find $(SRC_DIR) $(DEP_SRC_DIRS) -regex '.*\.\(c\|cc\|cpp\|cxx\)') $(DEP_SRC_FILES)
 TEST_SRC_FILES := $(shell test -d $(TEST_SRC_DIR) && find $(TEST_SRC_DIR) -regex '.*\.\(c\|cc\|cpp\|cxx\)')
 OBJ_FILES := $(patsubst %,$(OBJ_DIR)/%.o,$(SRC_FILES))
 TEST_OBJ_FILES := $(patsubst $(TEST_SRC_DIR)/%,$(OBJ_DIR)/$(TEST_SRC_DIR)/%.o,$(TEST_SRC_FILES))
@@ -42,7 +42,7 @@ CFLAGS := -m$(ARCH) -Wall -g -std=c++17 -I$(INC_DIR) -fpermissive#-Wconversion -
 CFLAGS_DEBUG := -DDEBUG
 CFLAGS_RELEASE := -O3 -w -DNDEBUG
 INC := $(DEP_CFLAGS)
-LIBS := -lpthread
+LIBS := -lpthread -lssl -lcrypto
 ifeq ($(OS),Windows_NT)
 	LIBS += -lws2_32 
 endif
