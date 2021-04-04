@@ -1,8 +1,8 @@
 #### what is this ?
-quick and dirty blogging SofTwArE written on a hurry
+markdown blogging utility written on a hurry
 
 #### rationale ?
-write and manage content in markdown with minimal effort/footprint/cpu-cycles/interaction wizza cumba-yotar
+write and manage content in markdown with minimal effort/footprint/cpu-cycles/interaction with computer
 
 #### how to build ?
 - do a recursive clone and change dir
@@ -14,16 +14,23 @@ cd plebspot
 ```
 make
 ```
-- for windows and mac meson should work, thanks to @Abdullah-AlAttar
+- for windows and mac use cmake
 
 #### how to use ?
 - initialize plebspot in an empty directory 
 ```sh
 plebspot init
 ```
-- add blog info to `pleb.yml`
-- place markdown files in `pages` and `posts` directories
-- place static content in `static` folder
+- adjust configuration in `pleb.yml`
+- place markdown files in `pages` and `posts` directories with metadata syntax like:
+```
+[title: a friendly post tile instead of the plain file name]::
+[author: me]::
+[date: 19 Dec 2019]::
+[tags: fun, unfun, ofc these md comments look nasty]::
+```
+- place static content in `static` folder (ex: `logo.png`, `favicon.ico`)
+- adjust `template/plain.html` or add new template
 - run
 ```sh
 plebspot serve
@@ -40,11 +47,13 @@ plebspot serve
 - [x] comments
 - [x] rss feeds
 - [x] sitemap xml
-- [ ] ssl
+- [x] ssl
 
 #### luxury features
-- [ ] compressed cache for rendered html
+- [ ] `--daemonize`
+- [ ] status, restart, stop commands
+- [ ] auto config reload
+- [ ] rendered html cache
 - [ ] visitor statistics
 - [ ] server side syntax highlighting (use enscript or src-highlite)
 - [ ] github style task list
-- [ ] `plebspot restart` command
