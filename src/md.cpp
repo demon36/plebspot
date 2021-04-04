@@ -48,14 +48,12 @@ struct html_flag_info {
 #define DEF_MAX_NESTING 16
 
 using namespace std;
+using namespace util;
 
 
 namespace md{
 
-const string MD_COMMENT_PREFIX = "[//]: # (";
-const string MD_COMMENT_POSTFIX = ")";
-
-md_doc make_md_doc(filesystem::path p){
+outcome<md_doc> make_md_doc(filesystem::path p){
 	string parent_cat;
 	if(p.parent_path().stem() != PAGES_DIR && p.parent_path().stem() != POSTS_DIR){
 		parent_cat = p.parent_path().stem().string();
@@ -71,27 +69,32 @@ md_doc make_md_doc(filesystem::path p){
 	util::replace_all(doc.url, "\\", "/");
 #endif
 
+	util::outcome<string> contents_outcome = util::get_file_contents(p.string());
+	if(!contents_outcome.is_success()){
+		return contents_outcome.get_error();
+	}
+
 	std::ifstream file_stream(p.string());
 	for(string line; getline(file_stream, line);){
 		//get metadata in form [title: my custom post title]::
-		if(line.find(MD_COMMENT_PREFIX) == 0 && line.rfind(MD_COMMENT_POSTFIX) == line.size()-MD_COMMENT_POSTFIX.size()){
-			pair<string, string> kv = util::split(
-				line.substr(MD_COMMENT_PREFIX.size(),
-				line.size()-MD_COMMENT_PREFIX.size()-MD_COMMENT_POSTFIX.size()),
-				":");
+		if(line.find("[") == 0 && line.find("]::") != line.size()-4){
+			pair<string, string> kv = util::split(line.substr(1, line.find("]::") - 1), ":");
 			if(kv.first == "title"){
-				doc.title = kv.second;
+				doc.title = util::trim(kv.second);
 			} else if(kv.first == "keywords"){
-				doc.keywords = kv.second;
+				doc.keywords = util::trim(kv.second);
 			} else if(kv.first == "author"){
-				doc.author = kv.second;
+				doc.author = util::trim(kv.second);
 			} else if(kv.first == "date"){
-				doc.date = kv.second;
+				doc.date = util::trim(kv.second);
 			}
 		} else {
 			break;
 		}
 	}
+
+	string contents = contents_outcome.get_result();
+	doc.contents = contents;
 	return doc;
 }
 
@@ -102,11 +105,17 @@ map<string, vector<md_doc>> get_md_docs(doc_type type){
 		if(i.is_directory()){
 			for(auto& j: filesystem::directory_iterator(i)){
 				if(!j.is_directory() && j.path().extension() == ".md"){
-					docs_map[i.path().filename().string()].push_back(make_md_doc(j.path()));
+					outcome<md_doc> doc_out = make_md_doc(j.path());
+					if(doc_out.is_success()){
+						docs_map[i.path().filename().string()].push_back(doc_out.get_result());
+					}
 				}
 			}
 		} else {
-			docs_map[""].push_back(make_md_doc(i.path()));
+			outcome<md_doc> doc_out = make_md_doc(i.path());
+			if(doc_out.is_success()){
+				docs_map[""].push_back(doc_out.get_result());
+			}
 		}
 	}
 	return docs_map;
@@ -214,11 +223,7 @@ util::outcome<string> gen_rss(const string& host){
 			post_node.append_child("guid").append_child(pugi::node_pcdata).set_value(util::to_absolute_url(host, md.url).c_str());
 			post_node.append_child("pubDate").append_child(pugi::node_pcdata).set_value(md.date.c_str());
 			post_node.append_child("category").append_child(pugi::node_pcdata).set_value(md.category.c_str());
-			util::outcome<string> contents_outcome = util::get_file_contents(md.url.substr(1, -1));
-			if(!contents_outcome.is_success()){
-				return contents_outcome;
-			}
-			string post_html = md::render_md_to_html(contents_outcome.get_result());//remove preceding separator
+			string post_html = md::render_md_to_html(md.contents);//remove preceding separator
 			post_node.append_child("description").append_child(pugi::node_pcdata).set_value(post_html.c_str());
 		}
 	}

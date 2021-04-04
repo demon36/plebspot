@@ -91,9 +91,7 @@ util::outcome<string> render_home_page(){
 	return ss.str();
 }
 
-void fill_document_data(mustache::data& page_data, const string& path){//fill with data extracted from the markdown file
-	md::md_doc doc = md::make_md_doc(path);
-
+void fill_document_data(mustache::data& page_data, const md::md_doc& doc){//fill with data extracted from the markdown file
 	page_data.set("page_desc", doc.title);//title cannot be empty, default value is filename
 	page_data.set("page_url", doc.url);
 	if(!doc.author.empty())		page_data.set("author", doc.author);
@@ -113,7 +111,10 @@ util::outcome<string> render_post(const string& path, const string& req_ip, cons
 	OUTCOME_ERR_CHECK(template_out);
 	mustache::data post_data;
 	fill_generic_date(post_data);
-	fill_document_data(post_data, path);
+
+	util::outcome<md::md_doc> doc_out = md::make_md_doc(path);
+	OUTCOME_ERR_CHECK(doc_out);
+	fill_document_data(post_data, doc_out.get_result());
 
 	vector<comments::comment> coms = comments::get_comments(path);
 	fill_comments(post_data, coms);
@@ -123,12 +124,7 @@ util::outcome<string> render_post(const string& path, const string& req_ip, cons
 		post_data.set("comment_token", comments::gen_token(path, req_ip, coms.size()));
 	}
 	
-	util::outcome<string> contents_out = util::get_file_contents(path.c_str());
-	if(!contents_out.is_success()){
-		return contents_out;
-	}
-	
-	post_data.set("content", md::render_md_to_html(contents_out.get_result()));
+	post_data.set("content", md::render_md_to_html(doc_out.get_result().contents));
 	if(!alert_msg.empty()){
 		post_data.set("alert_msg", alert_msg);
 		post_data.set("comment_msg", com.message);
@@ -145,10 +141,11 @@ util::outcome<string> render_page(const string& path){
 	mustache::mustache post_tmpl = template_out.get_result();
 	mustache::data post_data;
 	fill_generic_date(post_data);
-	fill_document_data(post_data, path);
-	util::outcome<string> contents_out = util::get_file_contents(path.c_str());
-	OUTCOME_ERR_CHECK(contents_out);
-	post_data.set("content", md::render_md_to_html(contents_out.get_result()));
+
+	util::outcome<md::md_doc> doc_out = md::make_md_doc(path);
+	OUTCOME_ERR_CHECK(doc_out);
+	fill_document_data(post_data, doc_out.get_result());
+	post_data.set("content", md::render_md_to_html(doc_out.get_result().contents));
 	post_tmpl.render(post_data, ss);
 	return ss.str();
 }
