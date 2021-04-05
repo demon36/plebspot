@@ -7,7 +7,6 @@
 #include <mustache.hpp>
 #include <fmt/core.h>
 #include <plusaes/plusaes.hpp>
-#include <unistd.h>
 #include <time.h>
 #include <iostream>
 #include <base64.h>
@@ -55,7 +54,7 @@ token deserialize_token(const std::string& tok_str){
 std::string gen_token(const string& post_path, const string& ip, std::size_t num_comments){
 	token tok{};
 	int num_letters = 26;
-	srand((unsigned) time(NULL) * getpid());
+	srand((unsigned) time(NULL));
 	
 	//set captcha answer
 	for (size_t i = 0; i < CAPTCHA_LEN-1; ++i){

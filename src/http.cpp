@@ -54,10 +54,10 @@ int handle_post_comment(const Request& req, Response& res){
 	auto post_path = req.matches[1];
 
 	comments::comment com = {
-		.author = req.get_param_value("author"),
-		.date = util::get_current_time(),
-		.message = req.get_param_value("comment"),
-		.author_ip = req.remote_addr,
+		req.get_param_value("author"), //author
+		util::get_current_time(), //date
+		req.get_param_value("comment"), //message
+		req.remote_addr, //author_ip
 	};
 
 	error err_code = comments::post_comment(

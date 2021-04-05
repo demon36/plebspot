@@ -3,6 +3,7 @@
 #include "config.h"
 #include "util.h"
 
+#include <sstream>
 #include <fstream>
 #include <cstring>
 #include <fmt/core.h>
@@ -59,11 +60,10 @@ outcome<md_doc> make_md_doc(filesystem::path p){
 		parent_cat = p.parent_path().stem().string();
 	}
 
-	md_doc doc = {
-		.title = p.filename().string(),
-		.url = "/" + p.string(),
-		.category = parent_cat,
-	};
+	md_doc doc;
+	doc.title = p.filename().string();
+	doc.url = "/" + p.string();
+	doc.category = parent_cat;
 
 #ifdef _WIN32
 	util::replace_all(doc.url, "\\", "/");
